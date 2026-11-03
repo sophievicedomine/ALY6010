@@ -1,0 +1,382 @@
+---
+title: ''
+output: html_document
+---
+
+```{r LibraryData, message=FALSE, warning=FALSE, echo = FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+# Libraries used in this report
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(knitr)       # for tables
+library(RColorBrewer)
+library(readxl)
+library(readr)
+library(kableExtra)
+library(FSA)
+library(ggplot2)
+library(lattice)
+library(psych)
+library(scales)
+
+#load data
+carsales_data <- read_excel("carsales_data.xlsx")
+View(carsales_data)
+```
+
+
+<CENTER><B><font size="6" color="#528F55">
+ALY6010 Project 1 Report <br>
+</B><font size="3" color="black">Created by Sophie Vicedomine<br>
+In partial completion of the course: ALY60160<br>
+CRN 70846</font></b></center>
+<BR>
+<BR>
+</CENTER>
+
+<Font size = "5" color = "528F55"><B>
+Introduction<BR><FONT size = '3' color='black'>
+Part A<BR>
+</B>Using the articles included in the assignment description, it is clear that during the pandemic the global car market saw a general decrease in sales. According to Matchilde Calier via Statista, there was approximately a 10% decrease in passenger cars during 2020, the year the COVID 19 pandemic struck the world. Since that downturn, many sectors of the automotive industry have bounced back. India is one such sector, and rebounded effectively in 2021 after the pandemic downturn. There is also rising demand for electric vehicles in this market. According to K. Thakkar via Auto.com, several automotive companies including Jaguar have seen their electric vehicle sales skyrocket after the pandemic. <BR>
+<B> Part B<BR>
+</B> Using discrete and continuous models of probability distribution is important when examining the likelihood of different outcomes. Ideally, these models are used in tandem to create the most holistic view of the information. However, they differ in the type of data they are able to represent. Discrete models are best employed  where outcomes are countable, while continuous models are best used when data may be any number in a range. Simply put, discrete models are used for whole numbers, while continuous models may be any number in a range. Discrete models should be used to represent the probability of a variable like car sales. One cannot sell half a car, so all numbers will be whole and are easily 'countable'. Continuous models on the other hand are best employed for something like the probability of a vehicle being above or below a certain level of fuel efficiency. <BR>
+<B> Part C</B><BR>
+The data set we will be using today contains information about the make and model of individual vehicles, and includes information like the number of seats, the price, fuel type, and the current  kilometers on the odometer. 
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 1
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Task 1 Description</B><BR>
+Use the dplyr and psych libraries to provide a table for a bird's eye view of the data.
+
+```{r Task 1} 
+#load in data sing pipes
+carsales_data%>%
+  #use dplyr to narrow down variable criteria
+  dplyr::select(Efficiency, Power_bhp, Seats, Km, Price)%>%
+  #use psych for preliminary stats
+  psych::describe()%>% #use pipes here to easily pass the describe data to a data frame
+  as.data.frame() %>%
+  `colnames<-`(toupper(colnames(.))) %>% # capitalize the column names
+#now make presentable using kable
+kableExtra::kable()%>%
+  kableExtra::kable_styling(full_width = FALSE, position= 'center')
+
+```
+<B>Task 1 Observations:<BR></B>
+When writing this code, it was essential for me to convert the outcomes of the psych::describe() code as a data frame. That enabled me to easily conver the findings to a table, and then to further use kable make the table legible. I also used pipes in several locations. Last semester, I was hesitant to use pipes, but after the code was required with several different assignments, I became more comfortable suing them. It helps to pass the outcome of a previous code to a new function. Here, this is exemplified by passing the outcome of the dplyr call directly to the pschy call. 
+
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 2
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Create a bar plot to display the frequencies of location, and a pie chart to display the percentages of each category by fuel type. Make sure to utilize the code parmfcol=c(1,2)) to organize the bar plots. 
+```{r Task 2}
+# bar plot for location
+#use <- outside function calls and = inside function calls
+#frequency table to pull from
+location_barplot <- table(carsales_data$Location)
+#barplot from frequency table
+barplot(location_barplot, main = "Location Frequency in Car Sales Data", 
+        xlab = "Location",
+        ylab = "Frequency of Location",
+        col = "navy",#color of bars
+        las = 2,#rotate x axis lables
+        cex.axis = 0.7,#make y lables smaller
+        cex.names = 0.5) #make x lables smaller
+
+#ok now pie chart time
+FuelType_piechart <- table(carsales_data$FuelType) #frequency table for fuel type
+pie(FuelType_piechart, 
+    main = "Fuel Type Percentage",
+    col = rainbow(length(FuelType_piechart)), # Properly close parentheses here
+    labels = paste0(names(FuelType_piechart), " (", 
+                    round(100 * FuelType_piechart / sum(FuelType_piechart), 1), "%)"), cex= 0.7) # Adds percentage labels and makes font smaller
+```
+<BR>
+<B>Task 2 Observations:<BR></B>
+Creating the bar chart for location frequency was decently straightforward, the most challenging aspect was making the labels on the x axis legible. I opted to rotate the labels and reduce the size of the font for readability. I encountered a similar issue when adding percentage labels to my pie chart. Even after using the code 'cex=' and reducing the font size, the smallest percentage labels still overlapped with each other. In future classes, I'll dive more deeply into how to customize the graph labels. I didn't want to eliminate the labels and use the paste() function to simply write over each part of the pie chart because it seemed vulnerable to errors if the data changes allowing for more dynamic naming capabilities. <BR>
+The most interesting trend I noticed in the pie chart is the dominance of gasoline and diesel fuel types. While electric car production may be on the rise, it still trails very far behind less sustainable methods of fuel. Because Mumbai is the most frequent location in the car sales data, that may be a market ripe for further production of electric vehicles. If consumers in the highest frequency location more commonly consume electric vehicels, the percentage of electric vehicle sales will grow more than a less frequent location like Ahmedabad. 
+
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 3
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Using the codes as.data.frame() and mutate(), create a table to represent the frequencies, cumulative frequencies, percentages, and cumulative percentages for the variable Owner in the car sales data. 
+```{r Task 3}
+#create frequency table for owner
+ownertable = table(carsales_data$Owner)
+
+#not make the table a data frame so we can interact with it
+ownerdataframe = as.data.frame(ownertable)
+
+#name columns for readability
+colnames(ownerdataframe) = c('Owner', 'Frequency')
+
+# now we calculate frequencies and percentages
+ownerdataframe <- ownerdataframe %>% #use pipes for ease of calling
+  mutate (CumFrequency = cumsum(Frequency), #cumulative frequenct
+         percentage = round((Frequency/sum(Frequency))*100,2), #percentage
+         CumPercentage= round (cumsum(Frequency) / sum(Frequency)* 100, 2))
+         #above is cumulative frequency
+         
+
+ownerdataframe%>% 
+  knitr::kable(digits = 2, caption ='Frequency Table') %>%
+  kable_classic(full_width = FALSE, font_size = 10)
+
+```
+<BR>
+<B>Task 3 Observations:<BR></B>
+I used the suggested code in the assignment description, to create a table that is legible and easy to dissect. The most difficult part of writing the codes was figuring out how to calculate the cumulative percentage. Even after writing the formula out on paper I still ran into several errors, which was frustrating. However I ended up referencing Stack overflow to see a similar example of how someone else calculated the cumulative percentage. my error ended up being in my ordering of the calculations, and it was helpful to see a successful calculation by someone else. That Stack overflow post is referenced in the bibliography of this report. I also used kable_classic (as specified in the assignment description) and the subsequent table required very little manipulation in order to present it in a satisfactory way. 
+In the data, the first think I notice is the high percentage of First time owners are represented in the table. 59% of purchases were for brand new cars, which means the population sampled heavily favors buying a new vehicle as opposed to buying used. Additionally, its interesting to note that the percentage of fourth owners, is more than double the percentage of third owners. This may indicate the the owner number is highly influenced by a vehicle characteristic, perhaps kilometers on the odometer or the brand of the car. Some vehicles may not be in good enough condition to purchase after two previous owners, while other vehicles are durable enough to still run well after a third owner. 
+
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 4
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Examine different Z scores in the variable kilometers. Present a density plot and plot ab lines to see the specified z scores. 
+```{r Task 4}
+#mean and SD for km
+kmmean = mean(carsales_data$Km)
+kmsd =sd(carsales_data$Km)
+
+#get +2.4 sd value
+value_above =kmmean+ (2.4 *kmsd)
+# get -3.1 sd value
+value_below = kmmean-(3.1* kmsd)
+
+#density plot!
+kmdensity <-density(carsales_data$Km, na.rm= TRUE)
+plot(kmdensity, main ="Density Curve Plot for variable KM", xlab = "KM", ylab = "Density of KM")
+
+#now add ab lines 
+abline(v=kmmean, col = "#5F5449")
+mtext(paste("Mean:", round(kmmean, 1)), at = kmmean, col = "#5F5449", line = .5, side = 3, cex=.7) #add lable and move down 
+abline(v=value_above, col= "#9B6A6C")
+mtext(paste("Z-score 2.4:", round(value_above, 1)), at= value_above, col= "#9b6A6C", line=.5, side=3, cex=.7) #label and move down 
+abline(v=value_below, col= "purple")
+mtext (paste("Z-score -3.1:", round(value_below)), at =value_below+10000, col="purple", line=1, side = 3, cex=.7)# label and move lable over 10000 for visibility
+
+
+```
+<BR>
+<B>Task 4 Observations:<BR></B>
+<BR>
+The most challenging part of this code was the AB lines and their labels. There are no values that fall -3.1 standard deviations below the mean, so the final AB line does not show on the graph. However, I still wanted to include the label to make it clear that there are no such values. I also had to do a bit of fine tuning the placement of the labels to move the -3.1 z-score ab line to the right for visibility, and moving the other two AB lines down so they did not interfere with the title of the chart. 
+As for the data itself, its clear that the data has a right (positive) skew, meaning that most of the data falls on the lower end, but that there are a few high value data points that pull the mean up. In a practical sense, this indicates that there are a few vehicles that have much higher kilometer values on the odometer. it may be interesting to examine the brand and owner number of these high Km value vehicles. Vehicles with higher Kms on the odometer may be more likely to have more owners, as they are on the road for much longer. 
+
+
+
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 5
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Create a histogram and horizontal boxplot for the variable kilometers. 
+```{r Task 5}
+#as per directions, use this to see the plotting area
+par(mfrow = c(2, 1), mar = c(3, 4, 2, 2))
+
+
+#histogram creation
+hist(carsales_data$Km,
+     main ="Kilometers Histogram",
+     xlab="Kilometers",
+     ylab="Frequency",
+     col= "magenta",
+     border = "black")
+
+#boxplot creation time
+boxplot(carsales_data$Km, 
+        horizontal = TRUE, #make horozontal!
+        main = "Kilometers boxplot",
+        xlab = "Kilometers",
+        col = "magenta")
+
+```
+<BR>
+<B>Task 5 Observations:<BR></B>
+<BR>
+The findings of task 5 reinforce the statement I made in task 4, that the data is slightly positively skewed, and there are several high value outliers on terms of the kilometers. Most values observed in the data set fall below the mean of `r kmmean`Km. While most cars o not exceed `r kmmean`Km, there are several vehicles that are far above 100000 km, bringing the average Km up. The low kilometer value of most vehicles is supported by the previously established proportion of first time owners. Additionally, he box plot also helps us to identify several outliers Further analysis into the type of vehicle that these outliers represent may provide more detailed insights into what cars last the longest for consumers. 
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 6
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Similar to task 5, create a histogram and horizontal boxplot for the variable Price. 
+```{r Task 6}
+#use par code again same as in task 5
+par(mfrow =c(2,1), mar = c(5,6,2, 3))# adjust if it looks wonky
+
+#boxplot
+boxplot(carsales_data$Price, horizontal =TRUE, 
+        main ="Price Boxplot", xlab= "Price", col = "#A6A15E")
+
+#histogram
+hist(carsales_data$Price, 
+     main="Price Histogram", 
+     xlab="Price", 
+     ylab= "Frequency of Price", 
+     col = "#A6A15E")
+
+```
+<BR>
+<B>Task 6 Observations:<BR></B>
+<BR>
+Using the mar() codes to adjust the margins was an easy way to make sure my graphs were tight, but also displayed the relevant data. I ended up adjusting the bottom margin in particular to ensure that the x label of the histogram and bar plot were both featured in the display. 
+The box plot and histogram of price are similar to the box plot and histogram of the variable kilometers, in that they both are positively skewed (skewed to the right). Again, this indicates that most values fall below the mean, and median may be a more accurate measure of center when analyzing this variable. There are also several high value outliers as displayed on the box plot. Perhaps these vehicles that are priced highly correlate to some of the vehicles with a very high Km value. An increase in quality should theoretically be reflection in an increase in price, so a cross analysis of these two varaibles may help to reveal if consumers are purchasing based on vehicles that will last longer, irregardless of price. 
+
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 7
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Create a boxplot to display the price variable by owner. 
+```{r Task 7}
+#price per owner distribution, make box plot, each category of owner gets its own box
+# display all values in the Owner variable to make sure I include all 
+carsales_data %>%
+  group_by(Owner) %>%
+  summarize(Frequency = n()) %>%
+  arrange(Owner)
+
+#now make the boxplot
+boxplot(carsales_data$Price ~ carsales_data$Owner,#making boxplot of price, by vaiable owner
+        main="Price Frequency by Owner Number",
+        xlab ="Owner",
+        ylab= "Price",
+        col = 'darkgreen',
+        las =1, #rotating lables like in the first task
+        names = c('First', 'Second', 'Third', 'Fourth'),
+        cex.axis =.6)#axis lable size
+
+
+
+```
+<BR>
+<B>Task 7 Observations:<BR></B>
+<BR>
+Here we examine the price distribution by number of owner, which is convenient because this was a suggested area of study earlier on in the report. Vehicles who are owned by the fourth owner has the largest spread within the 25th to 75th percentile (the largest interquartile range). This indicates that vehicles who have had three previous owners already have little continuity regarding price, consumers are still willing to pay a high price for them. 
+<BR> The most interesting part of the data represented here is the spread of second time owners and price. There are high end and low end outliers, indicating most of the data is more homogeneous than first third or fourth time owned vehicles (the IQR is very small). 
+
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 8
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Similar to task 7, create a boxplot for kilometers by location. 
+```{r Task 8}
+#similar to 7, km distribution by location, each location gets its own box
+#first I'll make sure to include all values in variable location
+carsales_data %>%
+  group_by(Location) %>%
+  summarize(Frequency = n()) %>%
+  arrange(Location)
+# Box Plot for Km by Location
+boxplot(Km ~ Location, 
+        data = carsales_data, 
+        main ="Kilometers Distribution by Location",
+        xlab= "Location",
+        ylab ="Kilometers",
+        col = "lightblue",
+        border = "navy",
+        las = 2, # Rotate x-axis
+        names=c("Ahmedabad", "Bangalore", "Chennai", "Coimbatore", 
+                  "Delhi", "Hyderabad", "Jaipur", "Kochi", 
+                  "Kolkata", "Mumbai", "Pune"),  # Labels for each box
+        cex.axis = 0.6) 
+
+```
+<BR>
+<B>Task 8 Observations:<BR></B>
+<BR>
+This was my favorite graphical representation to create because the final product indicates the type of driving done in each location. For example, Vehicles in Kokota have the lowest median, with several high value outliers. Vehicles in Chennai have the highest median, with no outliers included. To me, this indicates that the driving conditions in Chennai are much more rural, drivers drive for farther distances on average compared to Kokota, where the driving conditions are likely far more urban. 
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 9
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Use the code boxplot.stats() to display key stats for the variable kilometers. 
+```{r Task 9}
+#Apply and present the outcomes of code boxplot.stats() for variable kilometers 
+
+Kmstats = boxplot.stats(carsales_data$Km)
+#now display
+Kmstats
+```
+<BR>
+<B>Task 9 Observations:<BR></B>
+<BR>
+The code for this task was quite straightforward, but still provides some very useful insights into the behavior of the varibale Km, which we have already examined using a few different methods in this report. The most useful statistics I found displayed here are the minimum Km (171) and the maximum KM (129000). Out of the total 4,949 observations in the data set, we already know from examining the skew of the data in teh histogram and boxplot created in task 5 that most of these values will fall below the mean. 
+<BR> A new piece of information revealed here is the confidence interval, a value that I had not examined before Wednesday nights class. After a quick google search resulted in a resource published by Montana State University, I was able to identify that the third set of numbers under the header $conf indicates the upper and lower bounds of a 95% confidence interval. This is an easy way to identify that we can say with 95% confidence that the true median of the population is between 53154.99 and 54845.01 kilometers. <BR>
+The fourth chunk in the table represents all of the outliers in the data set. Here we can clearly see that there are 91 outliers in the Km variable, all upper bound outliers that would pull the mean up. 
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55">
+Task 10
+<BR></B><Font size = "3" color = 'black'><BR>
+<B> Description</B><BR>
+Create a dot chart based on the information in task 9. Make sure to display quartiles for the variable kilometers, and use the code boxplot.stats()$stats.
+```{r Task 10}
+Kmstats = boxplot.stats(carsales_data$Km)$stats #use code given in assignment description
+dotchart(Kmstats, main = "KM Dot Chart and Quaritles", 
+         xlab = "Kilometers", ylab= "Quartiles", labels= c('Minimum', 'Q1 (25th percentile)', "Median(50th percentile", "Q3 (75th percentile", "Maximum"),
+         pch = 8, col= "magenta") #display using pink stars to try out a new code
+```
+<BR>
+<B>Task 10 Observations:<BR></B>
+<BR>
+In this dot chart I experimented with symbols. One of the questions I got wrong on this weeks quiz was regarding symbols in R, so I took this opportunity to practice that skill and make the points represented by stars rather than by traditional dots. <BR>
+The plot itself further illustrates the positive skew of kilometers within the data set. If the data was normally distributed, the line created by these dots would be close to linear, each quartile a similar distance away from the previous one. However, the maximum is much farther away from the 75the percentile market than the minimum is from the 25th percentile marker. This means that while there is a tail on both the upper and the lower end of the data, the upper end tail is much larger, further proving a positive skew in the data. 
+
+<BR>
+<BR>
+<B><Font size = "5" color = "#528F55"><CENTER>
+Conclusion
+<BR></B><Font size = "3" color = 'black'><BR></CENTER>
+In this report we have conducted a through analysis of the data set car sales, which houses 4949 data points about car sales in various locations around India. In particular, we paid special attention to the variables Price and Kilometers, and also pulled in the number of owners, the type of fuel, and the location of the purchase for further analysis.  <BR>
+First, we can examine our findings about the price variable. Price has a positive skew, meaning there are a few high value outliers that pull the mean up, and most of the data falls below the mean. Median price may be a more effective measure of center fot this variable in future. The outliers likely represent vehicles of a certain brand. In the initial reading fo this report, we identified that Jaguar was increasing its sales of vehicles post-pandemic, especially electric vehicles. Some of these high value price outliers are likely indicative of this luxary brand selling a newer technology in the form of electric vehicles. Consumers are willing to pay more for a luxury good, especially one that has a new or innovative feature like being powered by electricity rather than a more traditional form of fuel. There is also a relatively narrow IRQ for price, meaning that price is a relatively stable variable for car sales. It is true that there are outliers of high value, but 50% of the data falls within a narrow margin, indicating that vehicle price is more stable than other variables represented in the data. <BR>
+When we examined price by owner, we could further see that vehicles purchased by their first owner had the smallest spread, and vehicles who are purchased by their fourth owner have the largest spread. This means that with each owner, the price of a vehicle becomes more varied. Perhaps this is due to some cars diminishing in value as they get older, and some vehicles (likely produced by luxury brands) retaining their value irregardless of the number of previous owners. 
+In sum, we can conclude that the majority of vehicles are priced similarly the first time they are sold, with increased variability as the vehicle is sold and purchased by different owners. <BR>
+Next, we can examine the variable kilometers, represented as 'Km' in the data set. Similarly to price, kilometers is skewed right, with high value outliers pulling the mean up. Again, I recommend that median be used as a more reliable measure of spread. These outliers are interesting because they mean that certain vehicles go much farther than others before they are taken off the market. I recommend further analysis into the brands of these high Km value vehicles. If luxury brands are producing vehicles that last longer, then their higher price points are justified. But if higher priced vehicles from luxuary brands are not going farther than non luxury brand cars, perhaps the value lies in style in speed rather than reliability and durability. If that is the case, I recommend luxury brands continue to add features that make the driving experience more enjoyable to justify their high price points. <BR>
+There are also a few interesting observations to be made regarding the location and kilometers on the odometer. Different locations with higher or lower median kilometers may indicate what vehicles are used for in those locations, and could inform marketing strategies for companies. Additionally, vehicles with lower median Km in Kolkota should probably be marketed as agile and quick because they are engaging in more city driving than vehicles observed in Chennai. Perhaps engineering teams would also benefit from advertising smaller vehicles in Kolkota, as they are easier to operate in city environments. <BR>
+Overall my recommendations to potential companies are to focus on regional marketing and needs, invest resources into investigations regarding condition of vehicles who have a second third or fourth owner, and to target the electric vehicle market particularly with vehicles that already have a high price point. Companies looking to pivot towards electric vehicle sales could also benefit from regional analysis, as areas closer to major cities are potential more likely to see higher electric vehicle sales due to the accessibility of charging locations. Additionally, our owner number and price analysis shows that a higher priced vehicle is still very likely to be bought by a fourth time owner. Companies should focus on repurchasing highly priced vehicels from owners looking to sell, as they can still resell those vehicles for a very high price point, without any additional manufacturing needs. 
+<BR>
+<BR>
+<BR>
+<BR>
+<B><CENTER><Font size = "5" color = "#528F55">
+Bibliography<BR>
+<Font size = "3" color= "black"></B></CNETER>
+Culver, M. December 17, 2020. Global Auto Sales Expected to Gain Momentum Next Year;
+83.4 Million Light Vehicles to Be Sold In 2021, According to IHS Markit. Business Wire.
+Mahmood, Abdul. Hakeem. “Adding Percentage Labels on PIE Chart in R.” Stack Overflow, 27 Dec. 2016, stackoverflow.com/questions/41338757/adding-percentage-labels-on-pie-chart-in-r. 
+Thakkar, K. January 11, 2021. Indian car market may post record 30% growth in 2021 on low
+base. Auto.com. 
+Wagner, I. February 5, 2021. Automotive industry worldwide - statistics & facts. Statista.
+Dr DaveDr Dave. 50111 gold badge55 silver badges1414 bronze badges, et al. “Replace Column Names in Kable/R Markdown.” Stack Overflow, 1 Oct. 2020, stackoverflow.com/questions/51432502/replace-column-names-in-kable-r-markdown. 
+Authors, Multiple. “Important R Code - Mark Greenwood and Katharine Banner.” Montana State University (MSU) Library, arc.lib.montana.edu/book/statistics-with-r-textbook/item/39. Accessed 7 Nov. 2024. 
+

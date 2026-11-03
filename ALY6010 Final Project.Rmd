@@ -1,0 +1,613 @@
+---
+title: ''
+output: html_document
+---
+
+```{r LibraryData, message=FALSE, warning=FALSE, echo = FALSE}
+# Libraries used in this report
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(knitr)       # for tables
+library(RColorBrewer)
+library(readxl)
+library(readr)
+library(kableExtra)
+library(FSA)
+library(ggplot2)
+library(lattice)
+library(scales)
+library(psych)
+library(summarytools)
+
+library(readxl)
+#data set part of ggplot2 library and is already in R, huzzah
+data('mpg')
+finaldata=mpg
+
+finalTask2 <- read_excel("finalTask2.xlsx")
+View(finalTask2)
+
+```
+
+
+<P><BR><Font size = 4.99, color = "#840000">
+<CENTER><B>
+Sophie Vicedomine<BR>
+Northeastern University <BR>
+In Partial Completion of the Course: ALY6010 CRN 70846<BR>
+Final Project</B><BR>
+<P>
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Introduction</B>
+</CENTER></P>
+</B><Font size = 2, color = "black">
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;Linear regression and correlation analysis have been an integral part of statistical analysis for centuries. Techniques like regression analysis, correlation, and determination can help us to determine if there is a relationship between two variables, the independent variable, and the dependent variable. Moreover, these techniques can also help us to state what kind of relationship they have, if any, as well as the strength of this relationship. We can determine what percentage of the change in the dependent variable can be directly attributed to the independent variable, allowing researchers to understand the relationship in advance of making significant changes to their designs or experiments. 
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;Sir Frances Galton published his first work on regression in 1889 while he was originally studying hereditary and genetics. In this work he outlined the concept of “regression to the mean” which later became known as simple “regression” he laid the groundwork for identifying linear trend lines and measuring the fit of those by calculating the vertical distance in individual data points from the predicted value. This difference is referred to as the “residual” (Galton 1889)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; It should be noted that although Galton’s work outlines the process for predicting data based on correlation, it does not necessarily determine causation. That is, two variables (independent and dependent) can be correlated positively or negatively, but that does not necessarily mean that they have causation. Causation differs from correlation in that it “involves a directional relationship where one variable influences another, while correlation merely captures statistical dependencies” (J. Pearl 2009). In layman’s terms, this means that two things can be correlated, but changing one may not necessarily change the other. The testing methods and techniques for causation are not part of the scope of this course, but it is important to distinguish the two nonetheless, as they are often misconstrued. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; Correlation and determination coefficients can be distinguished mathematically by their formulas: the coefficient of determination is simply the correlation coefficient squared. This prevents any negative values from occurring, as the coefficient of determination indicates the percent of change in variable y (the dependent variable) that can be explained by variable x (the dependent variable). Let us say that the correlation coefficient of walking speed and calories burned is 0.78. This indicates a strong positive correlation between the two variables. When we square this value, we arrive at the coefficient of determination, which here would be 0.6084. In context, this means that 60.84% of the change in calories burned (the dependent y variable) can be explained by walking speed (the independent x variable). The remaining 39% of change would be influence by other factors not pertaining to walking speed, like incline and BMI of the individual. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Simple regression analysis looks at the relationship between two variables, the independent x, and the dependent y, which are established at the start of an experiment. Defining these variables early on is an essential step, and mis-defining them can cause the entire calculation and experiment to yield faulty or misleading results. Multiple regression builds on this technique, using more than one independent (x) variable to predict the outcome of a single dependent variable (y). In our previous example, this would be like comparing walking speed, incline, and BMI (the independent x variables) to the calories burned (the dependent y variable). Multiple regression analysis can help us to attribute more of the changes in a dependent variable to other factors in our experiment, and to holistically understand how measured factors impact the aspect in question. (Chatterjee et al., 2011).
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Two-sample hypothesis testing is all about comparing groups to see if there’s a meaningful difference between them, and it’s used in countless industries, from business to healthcare. For independent samples, the groups have no connection to each other. Imagine comparing the average salaries of employees at two different companies—there’s no overlap between the people in the groups. In this case, a two-sample t-test is typically used to determine whether the salary differences are statistically significant. This test works under the assumption that the groups are unrelated and that their variances are similar (Chatterjee et al., 2011).
+On the other hand, dependent samples deal with groups that are linked in some way. For example, think about evaluating the effectiveness of a training program by comparing employees’ test scores before and after the training. Here, we’d use a paired t-test, which focuses on the differences within individuals rather than comparing across groups. This method ensures we account for the fact that the data points are connected (Fay and Proschan, 2010).
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Knowing when to use independent or dependent testing isn’t just a technicality—it’s essential for making accurate, meaningful decisions. In human resources, for example, independent testing might help compare hiring packages across two departments, while dependent testing could analyze how employees improve after a new policy is introduced. Similarly, in healthcare, researchers often rely on paired t-tests to study changes in patient outcomes before and after treatments. The key is to align the test with the structure of the data to avoid misinterpreting the results (Hinkle et al., 2003).
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;In our final R project of the semester, we are tying several concepts together, namely hypothesis testing and regression analysis. This project is a culmination of the techniques and methods we’ve learned, and an opportunity to showcase our new technical skills. We are asked to determine if models are appropriate, to prove or disprove hypothesis about regressions, and to communicate all of our findings cleanly and succinctly. This project mimicked real world data in many ways, where data relevant to our studies is contained in data sets with other superfluous information, and we need to specify in our code which aspects we are analyzing. 
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 4, color = "#840000">
+<CENTER><B>Task 1 Regression</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+<BR>
+</FONT>
+</CENTER>
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.1 Description of Data</B>
+</B><Font size = 2, color = "black">
+```{r Task 1.1, echo=FALSE, warning = FALSE}
+
+View(finaldata)
+decriptivesummary = dfSummary(finaldata)
+#using the t code as she reccomends and do data frame for kable later on
+psychsummary= t(describe(finaldata))%>%
+  as.data.frame()%>%
+  rownames_to_column(var = 'Metric')
+colnames(psychsummary)=c("Metric", "Manufacturer", "Model", "Displ", "Year", "Trans", "DVR", "Cty", "Why", "Fl", "Class")
+
+#now print
+print(decriptivesummary, method= 'render')
+psychsummary%>%
+  kable(caption = "Summary of the Final Data Set",
+        format='html',
+        align='c')%>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed', 'responsive'), full_width=FALSE, font_size=12)
+```
+
+The data set mpg, which is a part of the library 'ggplot2' is a data set that lives in R and is available for free use. It contains a few hundred rows of data pertaining to vehicles, including the make and model, the miles per gallon, fuel type, and vehicle class. 
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.2 Statistical Table</B>
+</B><Font size = 2, color = "black">
+```{r Task 1.2, echo=FALSE, warning = FALSE}
+#grouping by cyllindars
+displacement_stats=finaldata%>%
+  group_by(Cylinders=cyl)%>%
+  summarize(Mean=mean(displ,na.rm=TRUE),
+            SD =sd(displ,na.rm=TRUE),
+            Minimum = min(displ,na.rm=TRUE),
+            Maximum = max(displ,na.rm=TRUE))
+
+
+#kable table time
+displacement_stats%>%
+  kable(align='c',caption='Displacement per Cylinder Descriptive Stats', format='html', digits=2, table.attr='style="width:60%;"')%>%
+  kable_classic_2(bootstrap_options=c('hover', 'bordered', 'condensed'), html_font='Cambria', position='center', font_size=12)
+```
+&nbsp;&nbsp;&nbsp;&nbsp;Above we have a summary of descriptive statistics about the cylinders in the cars in the mpg data set, which I have renamed to 'finaldata' for the purpose of my coding. In his 1988 book titled Internal combustion Engine Fundamentals, author J.B. Haywood says that the engine displacement in a vehicle is the volume swept by pistons inside the cylinders during a single complete engine cycle. It has impacts on engine output, efficiency., and emissions, which could have far reaching implications for car manufacturers trying to sell fuel efficient vehicles that pass emissions testing. According to Haywood, increasing the displacement typically leads to higher power, but lower fuel efficiency. 
+<BR>In our table, we can see that as the cylinders increase in vehicles, so does the mean displacement, as do the minimum and maximum displacement values. It is worth noting that there is a substantial jump from 6 to 8 cylinders compared to 4 to 6 cylinders. The maximum displacement for an 8 cylinder vehicel is 7, compared to 4.2 for 6 vehicles. This is a larger jump from the maximum displacement in a 4 cylinder vehicle (2.7) to the 4.2 max we see in 6 cylinder vehicles. This may indicate that certain larger vehicles have very high displacement values, and could indicate a right skew in the data, where most of the data is centered towards the lower end, with some high value data points pulling the aggregate mean up. It is too early to make this assumption, but from this initial analysis it does merit inquiry. 
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.3 Coefficient of Correlation Calculation</B>
+</B><Font size = 2, color = "black">
+```{r task1.3 coefficient of correlation caluclation}
+table=finaldata%>%
+  select(Cylinders=cyl, Displacement=displ)%>% #isolating our columns to analyze
+  mutate(xy=Cylinders*Displacement, x2=Cylinders^2, y2=Displacement^2)
+
+
+#sums
+sums = table%>%
+  summarize(SumX =sum(Cylinders), SumY= sum(Displacement), SumXY=sum(xy), SumX_squared= sum(x2), SumY_Squared=sum(y2))
+
+#take the head values
+table_heads=head(table, 5)
+
+#print table
+table_heads%>%
+  kable(align='c', caption='Head Values of Cylinders and Displacement', format='html', digits=2)%>%
+  #kable!!!<3
+  kable_styling(bootstrap_options = c('hover', 'striped', 'condensed'), full_width=F, font_size=12)
+
+#print sums as well as stated in directions
+sums%>%
+  kable(align='c', caption='Cylinder and Displacement Sums', format='html', digits=2)%>%
+  kable_styling(bootstrap_options = c('hover', 'striped', 'condensed'), full_width = F, font_size = 12)
+
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;Here, I have replicated the concepts covered in class 5, where we calculate the sumations of our X and Y variables, as well as the summation of X multiplied by Y, and the summation of both variables squared.
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;The most critical part of this experiment was defining my independent and dependent variables. Cylinders is the x, or the dependent variable, because as the cylinders increase, so does the area of displacement. This represents a positive correlation. We know anecdotally that this relationship exists, but now we are interested in proving this relationship via correlation and regression analysis, as well as testing the strength of the relationship. 
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;I also chose to utilize the mutate function, which we explored in class 4 and utilized in several past projects to more easily name my variables and work with them during my calculations. 
+<BR> We can clearly see from the table that as cylinders (the independent variable) increases, so does the area of displacement (the dependent variable). This further hints at my previous assumption: that there is a direct positive correlation between cylinders and displacement area. 
+
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.4 Correlation and Determination Formula Application</B>
+</B><Font size = 2, color = "black">
+
+```{r Task 1.4, echo=FALSE, warning = FALSE}
+
+#ok first do the actual calculation
+correlation_coef =cor(finaldata$cyl, finaldata$displ, use='complete.obs')
+
+#data frame for kable table
+data.frame(Varibales=c('Cylinders and Displacement Area'), correlation_coef = round(correlation_coef, 3))%>%#i can round here because its the last step before presenting
+  kable(align='c', caption='Correlation Coefficient between Cylinders and Displacement', format='html', digits=2)%>%
+  #now style to make pretty
+  kable_styling(bootstrap_options = c('hover', 'striped', 'condensed'), full_width = FALSE, font_size = 12)
+
+
+
+
+
+
+
+#now the coefficient of determination
+correlation_coef=cor(finaldata$cyl, finaldata$displ, use='complete.obs')
+determination_coef=correlation_coef^2
+
+#df for kable table
+data.frame(Varibales=c('Cylinders and Displacement'), Correlation_Coefficient = round(correlation_coef, 3), Determination_Coefficient=round(determination_coef, 3))%>%
+  
+kable(align='c', caption='Correlation and Determination Coefficients between Cylinders and Displacements Area', format='html', digits=3)%>%
+  
+  #styling to keep consistent
+  kable_styling(bootstrap_options = c('hover', 'striped', 'condensed'), full_width = FALSE, font_size = 12)
+
+#for inline r code
+determination_percentage <- round(determination_coef * 100, 2)
+
+
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;The formula for the correlation coefficient is as follows:
+<BR><CENTER>r= (n∑xy-∑x∑y)/sqrt[(((n∑x^2)-(∑x)^2))*((n∑y^2)-(∑y)^2]
+<BR></CENTER> &nbsp;&nbsp;&nbsp;&nbsp;Essentially, the result of this calculation will reveal the strength of the relationship between two variables, here, the number of cylinders and the displacement area. The result should always be between -1 and 1, with zero being the center point, and indicating no relationship between the two. A result that is closer to -1 indicates a negative correlation (where the displacement would decrease while cylinders increase) and a result closer to 1 indicates a positive relationship (where displacement increases as cylinders increases). 
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;The correlation of determination on the otherhand is defined as R^2=r^2, where R is the coefficient of determination and r is the correlation coefficient. The squaring of the values ensures that the results are not negative. The correlation coefficient can be negative in order to determine a negative relationship, while the correlation of determination accounts for the percentage of the variance in the dependent variable based on teh independent variable. 
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;From the table we can see that there is a strong positive relationship between the number of cylinders and the displacement area. `r correlation_coef` is close to 1, and so it indicates a strong positive correlation between the two variables. Additionally, we can see that `r determination_percentage`% of the change in displacement can be accounted by the change in cylinders. 
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.5 Linear Regression</B>
+</B><Font size = 2, color = "black">
+```{r task 1.5, echo=FALSE, warning = FALSE}
+
+linear_regression =lm(displ ~ cyl, data=finaldata)
+#summary stats
+linear_regression_summary=summary(linear_regression)
+
+#intercept and slope for inline r codes
+y_intercept = coef(linear_regression_summary)[1]
+slope= coef(linear_regression_summary)[2]
+
+#round
+intercept_rounded = round(y_intercept, 2)
+rounded_slope=round(slope, 2)
+
+lin_regres_formula= paste0('y = ', intercept_rounded, '+', rounded_slope, 'x')
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;The formula for linear regression in this particular model is `r lin_regres_formula`. From that we can extrapolate that there is a strong positive correlation between cyllinders and displacement, and that the y intercept is below zero. There is no real situation that I can think of that would have a vehicle with zero cylinders, but if that situation did arise, so the negative y intercept should not be cause for concern, because it will not occur. 
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.6 Scatterplot Creation</B>
+</B><Font size = 2, color = "black">
+```{r 1.6, echo=FALSE, warning = FALSE}
+cylinder_mean= mean(finaldata$cyl, na.rm=TRUE)
+displacement_mean= mean(finaldata$displ, na.rm=TRUE)
+
+#scatterplot
+ggplot(finaldata, aes(x=cyl, y=displ))+ geom_point(shape =16, size = 3, color="#005f73", alpha =.7) +
+   geom_smooth(method = "lm", color = "maroon", linetype = 1, linewidth = 1, se = FALSE) +
+  geom_vline(xintercept = cylinder_mean, color = "blue", linetype = 2, linewidth = 1) +
+  geom_hline(yintercept = displacement_mean, color = "gold", linetype = 2, linewidth = 1) +
+  labs(title='Regression of Cylinders and Displacement Area', subtitle='Scatter Plot and Regression Lines', x='Number of Cylinders', y='Engine Displacement in Liters')+
+  theme_minimal(base_size=14)+ theme(plot.title=element_text(face='bold', hjust=.5), plot.subtitle=element_text(face='italic', hjust=.5), axis.title=element_text(face='bold'), axis.text=element_text(size=12), legend.position='none')
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;My first reaction upon seeing the product of my graph was that a scatter plot is perhaps not the best visual representation for discrete numerical data. The number of cylinders in a car must of course be an integer, one cannot have half a cylinder in a vehicle without it being non-functioning and superfluous at best, and a hazard at work. Displacement on the other hand is a calculated value representing a physical area based on the number of cylinders, and is therefore continuous. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; Despite this, the regression line does appear initially to be appropriate, and cylinders and displacement do in fact have a positive correlation, as cylinders increases so does the displacement. Adding the mean lines was helpful for me in establishing the center of the data: vehicles with 6 cylinders have around 4-2.5 liters of displacement, and form the most 'normal' data points. I use 'normal' here to indicate a typical vehicle, not to indicate normalized data in any way. These mean lines are also useful because they divide the data visually into quadrants, one would easily be able to identify high value data points one one or both variables, which could theoretically helped to differentiate data points that are quite different, or unexpected, compared to the rest. 
+
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.7 Residuals and Value Predictions</B>
+</B><Font size = 2, color = "black">
+```{r task 1.7, echo=FALSE, warning = FALSE}
+regression_task7= lm(displ~cyl, data=finaldata)
+
+residuals_table=finaldata%>% 
+  select(Cylinders= cyl, Displacement=displ)%>%
+  mutate(predicted_displacement = predict(regression_task7), residuals=Displacement- predicted_displacement)
+
+
+#show top 10 results
+residuals_table_top10 = head(residuals_table, 10)
+
+#kable table my favorite time
+residuals_table_top10%>%
+  kable(align='c', caption='First Ten Observations', format='html', digits=3)%>%
+  kable_styling(bootstrap_options = c('hover', 'striped', 'condensed'), full_width = FALSE, font_size = 12)
+```
+&nbsp;&nbsp;&nbsp;&nbsp;The most interesting thing about this table to me is the consistency of negative residuals for the top ten values. Perhaps this is simply chance in the data, but the consistency of this negative residual initially indicates that perhaps the regression line is not well fitted, and the slope should be increased slightly to account for this. I chose the slope as opposed to the y-intercept because the negative value of the residuals is greater for cars with 6 cylinders than with 4, indicating that the residual is increasing as the independent variable increases. We cannot make this statement as a fact, as only the top 10 values are represented in our table, but it is certainly a factor to watch as we proceed in our analysis. 
+
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 1.8 Task of Choice</B>
+</B><Font size = 2, color = "black">
+```{r task 1.8, echo=FALSE, warning = FALSE}
+linear_regression_task8 = lm(displ ~ cyl, data = finaldata)
+
+x_cylinders = 8
+displacement_predicted = predict(linear_regression_task8, newdata = data.frame(cyl = x_cylinders))
+
+# Mean lines
+mean_cylinders = mean(finaldata$cyl, na.rm = TRUE)
+mean_displacement = mean(finaldata$displ, na.rm = TRUE)
+
+ggplot(finaldata, aes(x = cyl, y = displ)) +
+  geom_point(shape = 20, size = 2, color = "#005f73", alpha = 0.7) +
+  geom_smooth(method = 'lm', color = "maroon", linetype = 1, linewidth = 1, se = FALSE) +
+  geom_vline(xintercept = x_cylinders, color = "blue", linetype = 2, linewidth = 1) +
+  geom_hline(yintercept = displacement_predicted, color = "gold", linetype = 2, linewidth = 1) +
+  annotate("text", x = x_cylinders + 0.5, y = mean_displacement + 0.5, label = paste0("X = ", x_cylinders),
+           color = "pink", hjust = 0, size = 4, fontface = 'bold') +
+  annotate("text", x = mean_cylinders + 0.5, y = displacement_predicted + 0.2, label = paste0("Y = ", round(displacement_predicted, 2)),
+           color = "navy", hjust = 0, size = 4, fontface = "bold") +
+  labs(
+    title = "Relationship Between Cylinders and Displacement",
+    subtitle = "Scatter Plot with Regression Line and Predicted Value Lines",
+    x = "Number of Cylinders",
+    y = "Engine Displacement (liters)"
+  ) +
+  # Improve presentation
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(face = "italic", hjust = 0.5),
+    axis.title = element_text(face = "bold"),
+    axis.text = element_text(size = 12),
+    legend.position = "none"
+  )
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;In task 1.6 we evaluated the residuals of displacements for the number of cylinders, that is, the differnece between the expected and the observed values. Here, 
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 4, color = "#840000">
+<CENTER><B>Task 2: Multiple Regressions at a Time</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r task2,echo=FALSE, warning = FALSE}
+#make regression model
+regression_multiple=lm(SystolicBP~Age+Weight, data=finalTask2)
+
+#coefs
+coefs= coef(regression_multiple)
+
+
+#present formula
+formula_regression= paste0('Systolic Blood Pressure = ', round(coefs[1], 3), ' + ', round(coefs[2], 3),' * Age', '+', round(coefs[3], 3), ' * Weight')
+#now call it
+formula_regression
+
+
+
+#correlation coefs
+corr_agebp = cor(finalTask2$Age, finalTask2$SystolicBP, use = "complete.obs")
+corr_weightbp=cor(finalTask2$Weight, finalTask2$SystolicBP, use = "complete.obs")
+
+
+#now square for coeficient of determination
+coef_determ_age= corr_agebp^2
+coef_determ_weight= corr_weightbp^2
+
+
+#df
+correlation_table= data.frame(
+  Variable_Pairs = c("Age & SystolicBP", "Weight & SystolicBP"),
+  Correlation_Coefficient = round(c(corr_agebp, corr_weightbp), 3),
+  Determination_Coefficient = round(c(coef_determ_age, coef_determ_weight), 3)
+)
+
+#kable table
+correlation_table %>%
+  kable(align = "c", caption = "Correlation and Determination Coefficients") %>%
+  kable_styling(bootstrap_options = c("hover", "striped"), full_width = FALSE, font_size = 12)
+
+
+regression_sum=summary(regression_multiple)
+
+# R-squared and adjusted R-squared
+r_squared <- regression_sum$r.squared
+adjusted_r_squared <- regression_sum$adj.r.squared
+
+# Present as a table
+data.frame(
+  Metric = c("Multiple R-Squared", "Adjusted R-Squared"),
+  Value = round(c(r_squared, adjusted_r_squared), 3)
+) %>%
+  kable(align = "c", caption = "Multiple and Adjusted R-Squared Values") %>%
+  kable_styling(bootstrap_options = c("hover", "striped"), full_width = FALSE, font_size = 12)
+
+
+
+
+#f stat and pval
+f_stat= regression_sum$fstatistic[1]
+df1 =regression_sum$fstatistic[2] # Degrees of freedom for numerator
+df2= regression_sum$fstatistic[3] # Degrees of freedom for denominator
+p_value= pf(f_stat, df1, df2, lower.tail=FALSE)
+
+
+
+#data frame
+f_test_results=data.frame(
+  Metric = c("F-Statistic", "Degrees of Freedom (df1)", "Degrees of Freedom (df2)", "P-Value"),
+  Value = round(c(f_stat, df1, df2, p_value), 3)
+)
+
+# Present results in a table
+f_test_results %>%
+  kable(align = "c", caption = "F-Test Results for Regression Model") %>%
+  kable_styling(bootstrap_options = c("hover", "striped"), full_width = FALSE, font_size = 12)
+
+
+
+
+#hypothesis!(python knowledge come through)
+if (p_value < 0.05) {
+  decision="We can reject the null hypothesis with 95% surity. We are 95% certian that this model is appropriate and significant in predcting blood pressure"
+} else {
+  decision="We fail to reject the null hypothesis with 95% surity. This is not a significant model in predicting blood pressure"
+}
+#now actually call it
+decision
+
+
+
+
+
+
+#prediction at different weights
+#age 25 weight 135
+age_25 =25
+weight_135=135
+predicted_bp_25_135=coefs[1] +coefs[2]*age_25+coefs[3]* weight_135
+predicted_bp_25_135
+
+
+#age 80 weight 175
+age_80=80
+weight_175=175
+predicted_bp_80_175=coefs[1]+coefs[2]* age_80+coefs[3]*weight_175
+predicted_bp_80_175
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;With the calculated p-value of `r p_value`, and the significance level of .05, the following decsion has been determined: `r decision`. Additionally, we now know that the predicted systolic blood pressure for someone who is age 25 and weights 135 is `r predicted_bp_25_135`, and the predicted systolic blood pressure for someone who is 80 and weights 175 pounds is `r predicted_bp_80_175`.
+
+
+
+
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 2.2 Scatter Plot Creation</B>
+</B><Font size = 2, color = "black">
+<BR>
+```{r 2.2, echo=FALSE, warning = FALSE}
+#multiple graphs in thesame display
+par(mfrow=c(1,2))
+
+#scatterplot for age and systolc bp
+plot(finalTask2$Age, finalTask2$SystolicBP, main ='Age and Systolic Blood Pressure', xlab='Age', ylab='Systolic Blood Pressure', pch=1, col= "#0073C2", cex = 1.2)
+#regression line
+abline(lm(SystolicBP~Age, data=finalTask2), col='maroon', lwd=2)
+
+
+#weiht vs bp
+plot(finalTask2$Weight, finalTask2$SystolicBP, main = 'Weight vs Systolic Blood Pressure', xlab = "Weight", ylab = "Systolic Blood Pressure",pch =1, col="#0073C2",cex=1.2)
+#regression line
+abline(lm(SystolicBP ~ Weight, data = finalTask2), col = "maroon", lwd = 2)
+```
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;In the above scatter plots, we can clearly see that Age and Systolic Bloop pressure, as well as weight and systolic blood pressure are both positively correlated, as the independent variable increases (age or weight) so does the dependent variable (systolic bloop pressure). Both lines initially appear to be good fits for the data sets. I elected to go with he automatic framing for the graphs, and to not include the Y intercept in the visualization. This made sense for displaying the data points, and also makes sense in context. No infants or toddlers who would have had an age of zero are contained in the data set, and no person will ever have a weight of zero, so the y-intercept is not an essential point to display in the graphs, though it is critical when calculating expected values based on our calculated regression line. 
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 2.3 Predictions and Residuals</B>
+</B><Font size = 2, color = "black">
+
+```{r  task 2.3, echo=FALSE, warning = FALSE}
+finalTask2=finalTask2 %>%
+  mutate(Predicted_BP = predict(regression_multiple),Residuals = SystolicBP - Predicted_BP)
+
+
+#make table
+residuals_table=finalTask2 %>%
+  select(Age, Weight, SystolicBP, Predicted_BP,Residuals)
+
+#kable table <#
+residuals_table %>%
+kable(caption = 'Table of Predicted Values vs. Residuals',col.names=c('Age (X1)', 'Weight (X2)','Observed BP (Y)', 'Predicted BP', 'Residuals'), align = 'c',format = 'html') %>%
+  kable_styling(bootstrap_options=c('striped', 'hover', 'condensed', 'responsive'),
+    full_width = FALSE,
+    font_size = 12
+  )
+```
+&nbsp;&nbsp;&nbsp;&nbsp;In the above table we can see that there are a few residuals higher than others, with most predicted values only difference from the observed values slightly. In particular, the blood pressure of the individual who is 60 years old and weights 182 pounds has blood pressure 12 and a half points above where our regression line would predict. Not all other individuals above the age of 60, or above a weight of 185 have positive residuals, so this does not indicate that the regression line is less accurate at higher weights or ages, simply that this one individual was not well predicted by our regression model, and there may be another factor at play in their health. 
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<B>Task 2.4 Plotting the Calculated Residuals</B>
+</B><Font size = 2, color = "black">
+```{r task 2.4, echo=FALSE, warning = FALSE}
+#set up again for side by side graphs
+par(mfrow=c(1,2))
+
+#residuals and age
+plot(finalTask2$Age, finalTask2$Residuals, main='Age vs. Residuals', xlab='Age', ylab='Residuals', pch= 1, col='#0073C2', cex=1)
+#residual line
+abline(h=0, col='maroon', lwd=2, lty=2) #line at zero
+
+#scatterplot for weight and residuals
+plot(finalTask2$Weight, finalTask2$Residuals, main='Weight vs. Residuals', xlab='Weight', ylab='Residuals', pch=1, col='#0073C2', cex=1)
+#line at zero
+abline(h=0, col='maroon', lwd=2, lty=2)
+
+```
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Here, we can see that my previous statement about the appropriateness of the residual lines was true, that the lines are generally good fits, with a few high level residuals representing individual cases where variance from the regression line indicates an outside factor.
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;Understanding the importance of residual plotting is key to interpreting data. I recommend the International Encyclopedia of Statistical Science for a through understanding. According to Samprit Chatterjee who wrote for the encyclopedia, "The pattern of the residuals will often reveal the inadequacy of the fitted model" (Chatterjee 2014). This resource is great because it is in website format, so clicking through and finding information relevant to your concept of interest is easy and user friendly. Additionally, its very easy to cite (proper citations are contained at the bottom of each article entry), and the division of subjects follow a logical order for learning a new concept, allowing you to click through easily, in a stream of conciousness type of mindset. 
+
+
+
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 4, color = "#840000">
+<CENTER><B>Task 3 Conclusion </B>
+</CENTER>
+</B><Font size = 2, color = "black">
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;This project is the culmination of this course's entire work, and it challenged my abilities as a programmer. For me, the integration of regressions into my work was one of the most interesting parts of this course, I really enjoyed getting to understand the limits of predictability, and look forward to expanding my knowledge into non-linear models of prediction as well. The other most interesting piece of new information for me was the coefficient of determination, which allows me to state how much a change in one variable can be accounted for by another. I'm interested to see how this skill will complement future conversations I'll engage in about causation and correlation. For now, I feel like I have a strong grasp on the current concepts, and feel proud of the growth that I have undergo not just in the project, but throughout the semester. 
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;During the scope of this project specifically, there were two different robust tasks to accomplish. Using the mpg data set in Task 1, I analyzed the relationship between the number of cylinders and engine displacement, confirming a strong positive correlation while exploring residuals to identify areas where the model could be improved. In Task 2, I took it further with multiple regression, predicting systolic blood pressure using age and weight, which showed both variables were significant predictors. Along the way, I honed my skills in R programming, from creating clean visuals with ggplot2 to building reusable, efficient code. I also deepened my understanding of key statistical concepts, like the importance of residuals in assessing model fit and the need to distinguish correlation from causation. This project wasn’t just about getting results; it was about learning to interpret data critically and communicate findings clearly, skills I’ll use in my work to make data-driven decisions
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;Critical thinking was key throughout this project, as we strung several concepts together by the end, from regression, to the coefficient of determination, to hypothesis testing. Building on concepts in aggregate is always what solidifies my knowledge, and makes the whole proverbial picture come together for me. In future, I would love for project assignments to have more of this integration. It is not helpful for my learning to perform a task a few times, then move onto a proceeding module and never utilize the previous concept again. Learning should be a spiral, and combining concepts to mirror how one would solve a read world problem allows that spiral learning to take place, something I'll actively seek out in my future courses. 
+
+
+
+
+
+
+<BR>
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 4, color = "black">
+<CENTER><B>Bibliography </B>
+</CENTER>
+</B><Font size = 2, color = "black">
+- Bluman, Allan G. *Elementary Statistics: A Step by Step Approach.* McGraw Hill LLC, 2023.
+<BR>
+- Chatterjee, S. (2011). Residuals. In: Lovric, M. (eds) *International Encyclopedia of Statistical Science.* Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-642-04898-2_491
+<BR>
+- Galton, Francis. *Natural Inheritance.* Macmillan, 1889.
+<BR>
+- Heywood, John B. *Internal Combustion Engine Fundamentals.* McGraw-Hill Education, 1988. Internet Archive, https://archive.org/details/InternalCombustionEngineJohnHeywood. Accessed 11 Dec. 2024.
+<BR>
+- Kuhn, Max. “Correlation Data Frame - Correlate.” - Correlate • Corrr, corrr.tidymodels.org/reference/correlate.html. Accessed 11 Dec. 2024.
+<BR>
+- Pearl, J. (2009). *Causality: Models, Reasoning, and Inference* (2nd ed.). Cambridge University Press.
+<BR>
+- Stigler, Stephen M. *The History of Statistics: The Measurement of Uncertainty Before 1900.* Belknap Press of Harvard University Press, 1986.
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 4, color = "black">
+<CENTER><B>Appendix </B>
+</CENTER>
+</B><Font size = 2, color = "black">
+I would simply like to thank my classmates and instructor during the course of this class. My classmates, diligent and thoughtful as always, provided not only academic stimulation and challenge, but also a lighthearted humor in times that it was sorely needed. Academia is difficult, being a stunted and a profession at the same time even more so, and their enthusiasm for a good time, and hunger for knowledge bolstered and inspired me, thank you.
+<BR> To the instructor of this course, a thank you that I pair with respect. This course was incredibly challenging. The workload was intense, and the concepts advanced, but your passion for the poser of statistics was palpable and infectious. There were many late nights during the course of this class, and I am not too proud to admit that tears were shed over projects, but I emerge from ALY6010 a more competent professional. I have directly leveraged the skills gained in this course to produce new cyclical report out processes, and thus align myself for promotional activities next year. Thank you for encouraging us to keep the scope of our project sin our areas of interest, and for centering learning over perfection.
+<BR> To my past self, who was intimidated by the workload and complexity: I knew you could do it. 
+<BR>
+<BR>
+<BR>
+The RMD and html files for this project are called ALY6010 Final Project, and will be submitted jointly for the fufillment of this assignemnt. 

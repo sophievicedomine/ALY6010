@@ -1,0 +1,615 @@
+---
+title: ''
+output: html_document
+---
+
+```{r LibraryData, message=FALSE, warning=FALSE, echo = FALSE}
+# Libraries used in this report
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(knitr)       # for tables
+library(RColorBrewer)
+library(readxl)
+library(readr)
+library(kableExtra)
+library(FSA)
+library(ggplot2)
+library(lattice)
+library(scales)
+
+
+library(readxl)
+M3ProjectData_1 <- read_excel("M3ProjectData-1.xlsx")
+View(M3ProjectData_1)
+```
+
+<P><BR><Font size = 5, color = "#840000">
+<CENTER><B>
+Sophie Vicedomine<BR>
+Northeastern University <BR>
+In Partial Completion of the Course: ALY6010 CRN 70846<BR>
+Project 3</B><BR>
+<P>
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Introduction</B>
+</CENTER></P>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;Confidence intervals help us to predict certain statistical measure about a population, from a small proportion of that population. This proportion, a part of the larger whole, is called the sample. In most scenarios, the more information a researcher has, the more evidence they will have to support a conclusion. However, it is next to impossible to sample the entire population of anything. Imagine attempting to measure the entire population of mosquitos in the world. Not only is there no way of knowing when you have indeed surveyed that entire population, many individuals would die or be born during the survey period, the population is always in flux. Because of these practical limitations, statisticians developed methods for stating things about the entire population using only the information available in a sample. Using confidence intervals, we can say with certain levels of confidence if a statement about a population is true. From a portion of a population, researchers and statisticians can make assumptions about entire populations so long as they state with what level of confidence they are sure. On a graph,the confidence level is represented by the area under the bell curve that falls within the range of two values: the upper and lower confidence interval levels. These levels change according to the confidence level required, as the level of confidence increases, the width of the range between the upper and lower levels increases. Conversely, it decreases as the confidence level decreases. In practice, this makes sense. If you want to be very sure that the mean of a population is inside of the area of the confidence level, then the area under the confidence level should be wider. The higher you want your precision to be, the lower your confidence, because the area on the bell curve encompassed will be less.
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;The level of confidence should always be established at the start of the calculation, and should never be adjusted after calculations take place. A failure to reject is always a failure to reject, and moving the confidence level after calculating would seriously compromise the integrity of the analysis. It is always far better to conduct a second confidence interval calculation to find at what certainty we can predict the true parameter to be, rather than to just change the confidence interval at the last moment to either reject or fail to reject the null hypotheses based on outside pressures. The level of confidence can be decided on a number of contextual factors. If one is conducting initial market research about a sample, then a more precise level of confidence and a lower confidence level may be appropriate, as the cost of the true parameter falling outside of the confidence level will be lower, there are no financial repercussions for being slightly off. However if one is conducting medical research, the confidence level should be very high, though this may cause the range to be less precise. It is up to the researcher to determine if there is a need for more precision, or more accuracy within a given project.
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;Hypothesis testing is a critical function of confidence interval as well. Conducting a hypothesis test helps researchers to determine if there is enough evidence to reject or fail to reject a null hypothesis. Typical the null hypothesis is zero, which essentially means that there is no change in a population from the sample. Lets say we want to examine the relationship between two means, mean a being the sample mean, and mean b being the population mean. The null hypothesis would be as follows "Ho:mean(a) = mean(b)". This simply says that there is no change, or no difference between these two means. An alternative hypothesis should always state that there is a change between the two samples (or the sample and the population), and can be written as follows "Ha:mean(a)>mean(b)". 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;As part of conducting a hypothesis test, we must calculate the p-value, which can be interpreted as the likelihood that a value in the true population will fall outside of the calculated confidence level. It helps to determine whether the observed data points are consistent with the population. Generally we compare the p value to the alpha, which can also be called the confidence level. With a confidence level of 95%, the alpha would be .05. If the p value of a calculation is greater than this confidence level, then we fail to reject the null hypothesis, and cannot state that there is a difference between our sample and the population. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;As stated before, I am interested in the fisheries and wildlife industries, particularly as it relates to sustainable harvesting practices. In this, the population number of fish is a key metric for conservationists looking to instate new policy measures. One could never hope to survey the entire ocean to determine the actual number of a species, so researches can employ confidence intervals and hypothesis testing instead to determine if specific practices are effective in conservation efforts, and to estimate the true population levels of juveniles vs. adults, a key concept in determining the health and well being of a species. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;Lets say that a government agency bans near-shore trolling in order to protect the local cod species. Statisticians would be able to conduct confidence intervals about population before the change was enacted. After the ban, a new sample could be conducted, and using a one tailed hypothesis test, researchers could say whether or not the population of cod had increased, as was the desired result of the legislation. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;In sum, confidence intervals and hypothesis testing are essential tools when conducting statistical analysis, particularly when the true population can never be sampled in full. Statisticians who employ theses methods are able to draw conclusions about entire populations based on sample data, and also to measure effectiveness of changes based on p values and test statistics. These methods help to make evidence-based extrapolations for stakeholders, whether they be other researchers, business owners, or policy makers. 
+
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1. Table Observations</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+```{r Task 1}
+
+M3data= M3ProjectData_1 # renaming so I don't have to type the whole thing every time
+
+M3data%>%
+  head(15)%>% #top 15 values
+  kable()%>% #make sure to use pipes so we can pass the kable input to kable classic
+  kable_classic(full_width = F, html_font = "Comic Sans")
+```
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 2, color = "black">
+<CENTER><B>Task 1. Table Observations Analysis</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;In the first task I start by taking the first 15 values in the data set and present them. I utilized the code head() which we learned in the previous course, ALY6000 to present only the first number of values. I also renamed the data from 'M3ProjectData_1' to 'M3data' so that it is easier to code and work with. It is always useful to take an initial glance at one's data to see examples of it, and get a birds eye view od the type of information we are working with. Here, I can see there are 6 different samples, full of continuous numerical data. This makes sense, as the following tasks ask us to performs different test with each sample, with the hopes that we can draw some distinctions and parallels between them all. The data appears to be relatively similar, with no immediatly apparenet trends making one sample have higher or lower values than another, though further statistical analysis is required in order to attempt to measure and understand the true spread and center of the data. 
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 2: Table Statistics</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+```{r Task 2}
+#obtain mean median and sd for all 6 samples and overall, present in a table
+
+omitted_sample1 = M3data$`Sample 1`[!is.na(M3data$`Sample 1`)]
+omitted_sample2 = M3data$`Sample 2`[!is.na(M3data$`Sample 2`)]
+omitted_sample3=na.omit(M3data$`Sample 3`)
+
+#sample 1
+mean1 = mean(omitted_sample1) #trying a different way to omit na values
+median1 = median(omitted_sample1)
+sd1 = sd(omitted_sample1)#trying the code she suggests at the top of the project description
+
+
+#sample 2
+mean2 = mean(omitted_sample2) #trying a different way to omit na values
+median2 = median(omitted_sample2)
+sd2 = sd(omitted_sample2)#trying the code she suggests at the top of the project description
+
+#trying it a differnet way
+#sample 3
+mean3 = mean(omitted_sample3) #remember to ignore blanks or nulls
+median3 = median(omitted_sample3)
+sd3 = sd(omitted_sample3)
+
+#i don't like that method I'll stick to na.rm
+
+#sample 4
+mean4 = mean(M3data$`Sample 4`, na.rm=T) #remember to ignore blanks or nulls
+median4 = median(M3data$`Sample 4`, na.rm=T)
+sd4 = sd(M3data$`Sample 4`, na.rm = T)
+
+#sample 5
+mean5 = mean(M3data$`Sample 5`, na.rm=T) #remember to ignore blanks or nulls
+median5 = median(M3data$`Sample 5`, na.rm=T)
+sd5 = sd(M3data$`Sample 5`, na.rm = TRUE)
+
+#sample 6
+mean6 = mean(M3data$`Sample 6`, na.rm=TRUE) #remember to ignore blanks or nulls
+median6 = median(M3data$`Sample 6`, na.rm=T)
+sd6 = sd(M3data$`Sample 6`, na.rm = TRUE)
+
+#population
+meanall = mean(M3data$Population, na.rm=T) #remember to ignore blanks or nulls
+medianall = median(M3data$Population, na.rm=T)
+sdall =sd(M3data$Population, na.rm = T)
+
+
+#now make some vectors out of the variables we've defined
+all_means= c(mean1, mean2, mean3, mean4, mean5, mean6, meanall)
+all_medians = c(median1, median2, median3, median4, median5, median6, medianall)
+all_sds = c(sd1, sd2, sd3, sd4, sd5, sd6, sdall)
+
+#lable names for rows
+rownames = c('Sample 1', 'Sample 2', 'Sample 3', 'Sample 4', "Sample 5", 'Sample 6', 'Population')
+
+
+stats= matrix(c(all_means, all_medians, all_sds), ncol= 3, byrow= FALSE, dimnames=list(rownames, c('Mean', 'Median', "Standard Deviation")))
+rounded_stats= round(stats,2)
+
+#now table time
+rounded_stats%>%
+  kable()%>%
+  kable_classic(full_width = FALSE)
+```
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR><Font size = 3, color = "black">
+<CENTER><B>Task 2: Table Statistics Analysis</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;In the second task, we examine the mean, median and standard deviation of each of the 6 sample groups, as well as for the population. I first store the values of each of those values, and then create three vectors, corresponding to the columns of the table we want to create. The we name each of the rows according to the groups in the data, and combine the vectors into a matrix called stats. As the final last step I round to two decimal places, to ensure the integrity of the data. After all my data is ready to go I create a table using kable. Because the samples all have different number of instances (n) it's important to eliminate or ignore any na values in the data. Typically I have used code na.rm to instruct r to ignore these na values, but I tried a new method using code is.na instead. I also tried to use the code suggested in the header of the assignment: na.omit. Perhaps this is simply because I am used to it, but I prefer to use na.rm for omiting blank and na values, as it is easy to tack on to the end of a line of code. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;On first glance the table appears to have data that's relatively uniform, the measures of center appear to be uniform, but when we read farther over to the standard deviation, there is one data point that really sticks out: Sample 5. It has a very high standard deviation, far above that of the population. I predict that the shape of sample 5's data will be diligently different from the rest of the samples, it will be more concentrated in one area, with some data points that are far away from the center of the data.
+
+
+
+
+
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 3: Sample 1 Confidence Interval Calculations and Analysis </B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 3}
+#the knowns
+n= 160
+confidence_intervals = c(.9,.96,.99)
+
+#z values by confidence interval                       
+z_val_task3 =qnorm(1 -(1-confidence_intervals)/2)
+
+#margin of error
+error_margins= z_val_task3*(sd1/sqrt(n))
+
+lower_confidence = mean1- error_margins
+upper_confidence = mean1+ error_margins
+width_confidence = upper_confidence-lower_confidence
+
+#put it in a data frame to work with
+ci_stats = data.frame('Confidence Level' =paste0(confidence_intervals*100, '%'), 'Z-Value'= round(z_val_task3, 2), 'Margin of Error' = round(error_margins, 2), 'Lower Confidence Limit' = round(lower_confidence, 2), 'Upper Confidence Limit' = round(upper_confidence), 'With of Interval'=round(width_confidence, 2),check.names=FALSE)
+
+#present table
+ci_stats%>%
+  kable()%>%
+  kable_classic(full_width=FALSE, html_font = 'Comic Sans')
+                                 
+
+```
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;In the above table, I calculate the upper and lower limits, as well as the width, of 90%, 96% and 99% confidence intervals based on a sample size of 160. In task 2 we calculated the mean of sample 1 as `r mean1`, which is not within the bounds of any of those 3 confidence intervals. This suggests that there is a lot of variability within the data, and we should widen the confidence interval by lowering the confidence level in order to ensure we capture the true mean. Perhaps a confidence level of 99.99 with 160 instances would encapsulate the first sample mean, but in reality researchers cannot reasonably more confident than 99%. I also do not recommend raising the sample size to try and capture the sample mean, as increasing the n value decreases to confidence interval, meaning the range of the interval would become narrower, and less likely to capture the sample 1 mean.   
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 4: Sample Size</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 4}
+margin_of_error_task4 = .05
+
+required_sample_sizes= (z_val_task3 * sd1 / margin_of_error_task4)^2
+
+#data frame
+required_sample_size_table = data.frame('Confidence Level' =paste0(confidence_intervals*100, "%"), 'Z Value' =round(z_val_task3, 3), 'Margin of Error' =margin_of_error_task4, 'Standard Deviation' = round(sd1, 2), 'Required Sample Size' = ceiling(required_sample_sizes), check.names=FALSE)# round to a whole number if not a whole number
+
+#table
+required_sample_size_table%>%# i love pipes
+  kable()%>%
+  kable_classic(full_width=FALSE, html_font='Comic Sans')
+```
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR><Font size = 3, color = "black">
+<CENTER><B>Task 4: Sample Size Analysis</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;In the above table, I use the sample size formula, and the z-values previously calculated to determine the required sample sizes for each confidence level. The sample size formula is as follows: n=((Z*σ)/E)^2. In simple words, this formula calculates the required sample size by multiplying the confidence level (Z) by the SD of the sample (σ), then dividing that number by the margin of error, and finally squaring that result.In my code, I also make sure to round to the next highest whole number using the code ceiling(). From the results of this calculation, I can see why a sample size of 160 did not capture the true mean of the sample in task 3, the sample sizes required for each confidence level at the specified margin of error are many times that.<BR>
+We can clearly see from this table how the required sample size increases with the confidence level. If researchers want to be more confident about an answer, more data points are necessary to ensure accuracy of the calculation. 
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 5: Sample 2 Confidence Interval Calculations and Analysis</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+
+```{r Task 5}
+Sample2_n=23
+#we need a t interval because n is >30
+df=Sample2_n-1
+confidence_levels= c(0.90, 0.96, 0.99)
+
+t_values=qt(1-(1-confidence_levels)/2, df)
+
+
+#now margin of error
+margin_of_error_task5 = t_values*(sd2/sqrt(Sample2_n))
+
+#interval levels
+lower_confidence_task5=mean2-margin_of_error_task5
+upper_confidence_task5 = mean2+ margin_of_error_task5
+width_confidence_task5 = upper_confidence_task5-lower_confidence_task5
+
+#now data frame as per usual
+confidence_table_task5= data.frame('Confidence Level' =paste0(confidence_intervals*100, '%'), 'T-Value' = round(t_values, 2), "Margin of Error" =round(margin_of_error_task5, 2), 'Lower Confidence Level' =round(lower_confidence_task5, 2), 'Upper Confidence Level'=round(upper_confidence_task5, 2), 'Width of Confidence Interval'=round(width_confidence_task5, 2), check.names=FALSE)
+
+#kable table
+confidence_table_task5 %>%
+  kable()%>%
+  kable_classic(full_width=FALSE, html_font = 'Comic Sans')
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;In task 2 we calculated the population mean as `r meanall`, but sample 2 had a mean of `r mean2`, slightly higher. Both of these are within the t confidence intervals calculated with a n of 23 and a confidence of 90%, 96% and 99% respectively. This indicates that sample 2 is a good representative of the population mean, even though in task 3 we said that the sample 2 mean falls outside of even a 99% confidence interval. This is likely due to the sample size we are working with. In the task the sample size is less than 30, requiring us to perform a t test rather than a z test. We know that T tests are generally wider intervals than z tests to account for an increase in potential variability with smaller sample numbers, so the sample 2 mean falling within range of the t score when n=`r Sample2_n` even when it doesn't fall into a 99% confidence interval when n= `r n` makes sense. 
+
+
+
+
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 6: Proportions in Sample 3</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 6}
+#given in the task
+sample3_n= 1500
+limit =1.7
+confidence_levels=c(0.90, 0.96, 0.99)
+z_values= qnorm(1 - (1 - confidence_levels) / 2)
+
+
+#ok lets to the population first, define what a success or a failure will be
+pop_success= sum(M3data$'Sample 3' < limit, na.rm=TRUE)/length(M3data$'Sample 3') #remember to ignore blanks
+pop_fail =1-pop_success
+
+
+#now failure and success for the sample
+sample3_success =sum(M3data$'Sample 3'<limit, na.rm=TRUE)/sample3_n
+sample3_failure = 1-sample3_success
+
+#table time
+sample3_table =data.frame('Measure' =c('Population Success', 'Population Failure', 'Sample Success', 'Sample Failure'), 'Proportion' =round(c(pop_success, pop_fail, sample3_success, sample3_failure),3))
+
+#this calculation needs to go down here after weve calculated the success and fail levels
+standard_error=sqrt((sample3_success *sample3_failure)/sample3_n)
+moe_sample3 =z_values*standard_error
+
+#CIs
+lower_confidence_sample3 = sample3_success-moe_sample3
+upper_confidence_sample3= sample3_success+moe_sample3
+width_confidence_sample3 = upper_confidence_sample3-lower_confidence_sample3
+
+#table for the 3 CIs
+confidence_table_task6 = data.frame('Confidence Level' = paste0(confidence_levels*100, '%'), 'Z Values' =round(z_values,2), 'Margin of Error' =round(moe_sample3, 2), 'Upper confidence Level'=round(upper_confidence_sample3, 2), 'Lower Confidence Level'=round(lower_confidence_sample3, 2), 'Width of Confidence Interval'=round(width_confidence_sample3, 2), chack.names=FALSE)
+
+
+#kable table
+confidence_table_task6%>%
+  kable%>%
+  kable_classic(full_width=FALSE, html_font='Comic Sans')
+
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;Again, using the population mean that we calculated in task 2 of 1.05, and a sample 3 mean of 1.04, the population mean does indeed fallwithin all three of the confidence intervals we've calculated here. I calculated the population proportion of success at the top of the r chunk and stored the value as pop_success, which had a value of .89 when I run only that bit of code and call the varibale value. This is within the bounds of all three confidence intervals, 90, 96, and 99%. 
+
+
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 7: The Sample Variance of Sample 4</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+```{r Task 7}
+sample4_n =150
+sample4_df=sample4_n-1
+sample4_var=var(M3data$'Sample 4', na.rm=TRUE)
+pop_var = NA # we don't know hthis yet, so I'll ask R to just leave it as an unknown for now until we define it
+
+
+#use internet example from data camp for chi-squared code templates
+x2_right= qchisq(1-(1-confidence_levels)/2, df=sample4_df)
+x2_left=qchisq((1-confidence_levels)/2, df=sample4_df)
+
+
+
+#ok now the confidence intervals
+lower_confidence_var_sample4 = (sample4_df*sample4_var)/x2_right
+upper_confidence_var_sample4=(sample4_df*sample4_var)/x2_left
+width_confidence_var_sample4= (upper_confidence_var_sample4 - lower_confidence_var_sample4)
+
+
+#data frame and rounding
+sample_4_variance_table = data.frame('Confidence Level' =paste0(confidence_levels*100, '%'), 'Chi-Squared Left' = round(x2_left,2), 'Chi-Squared Right'=round(x2_right, 2), 'Lower Confidence Limit' = round(lower_confidence_var_sample4, 2), 'Upper Confidence Limit' = round(upper_confidence_var_sample4, 2), 'Width'=round(width_confidence_var_sample4, 2))
+
+
+#last step kable
+sample_4_variance_table%>%
+  kable()%>%
+  kable_classic(full_width=FALSE, html_font='Comic Sans')
+```
+&nbsp;&nbsp;&nbsp;&nbsp;The population and sample variances are `r pop_var` and `r sample4_var` respectively.
+In this table, I used a chi-squared distribution method to construct confidence intervals for the desired confidence levels: `r confidence_levels`.According the the University of Utah, we can use a chi-squared test to test the independence of two variables. Here, the application is due to understanding the confidence interval of the variance. A confidence interval for variances uses chi squared distribution when the population is normally distributed is important because a chi squared values because they help to account for variability in the sample variance (s^2) because it deals with the variances that are already squared, making all values absolute for our purposes. In the table, we can see that as the confidence level increases, the confidence interval it self widens. This makes sense anecdotal: the more sure we want to be, the larger the range included to accommodate for the increased certainty.  At 90% confidence, the width of the interval is .26, significantly smaller than the interval width at a 99% confidence interval, which we calculate to be .41.  
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 8: Sample 5 Hypothesis Testing</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r task 8!}
+#i'm gonna do a two tailed test 
+sample5_n = 200
+confidence_level_task8 = .95
+alpha = 1-confidence_level_task8
+pop_mean = 1.05 #given in task header
+
+#already calculated mean5 and sd5 in task2 so we don't need to define again
+
+z_stat = (mean5-meanall)/(sd5/sqrt(sample5_n))
+
+#CV calcualtion
+z_cv_right=qnorm(1-alpha/2) #2 tailed test so we have to divide by 2
+z_cv_left=(-z_cv_right) #just the negative
+
+#parameters for rejecting
+reject_Ho= abs(z_stat)>z_cv_right #if the z stat is more or higher than the critical value, reject
+#take the absolute value because agian its two tailed
+
+
+#compare
+#first compare z stat to the right cv
+higher_than_cv_right = ifelse(z_stat>0, z_stat>z_cv_right, NA)
+#now compare the z stat to the left cv
+lower_than_cv_left =ifelse(z_stat<0, z_stat<z_cv_left, NA)
+
+
+#now dataframe
+z_results=data.frame('Population Mean' = meanall, 'Sample 5 Mean' =round(mean5,2), 'Sample 5 SD'=round(sd5, 2), 'Sample 5 Size'=sample5_n, 'Z-Stat Calculated' =round(z_stat,2),' Right CV' =round(z_cv_right, 2), 'Left CV'=round(z_cv_left, 2), 'Z > Right CV?'=ifelse(!is.na(higher_than_cv_right), ifelse(higher_than_cv_right, "Yes", 'No'),'N/A'),'Z < Left CV?' = ifelse(!is.na(lower_than_cv_left),ifelse(lower_than_cv_left, 'Yes',"No"),'N/A'), 'Reject Null Hypothesis?'=ifelse(reject_Ho, 'Yes', 'No'), check.names=FALSE)
+
+#define column names
+
+
+z_results%>%
+  kable(align='c')%>%#for readability
+  kable_classic(full_width=F, html_font='Comic Sans')
+
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;The answer on 7 is no, there is not enough evidence to reject the null hypothesis, and we cannot with confidence conclude that there is a change in the population. If the answer had been yes, then there would have been significant enough evidence to conclude that there was a change, because thwn the z statistic we calculated would have fallen in the region of the interval that would have allowed us to reject. 
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 9: The P Value of Sample 5</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+```{r Task 9}
+
+#already defined z stat and alpha in revious task
+
+#pvalue for 2 tailed test
+#we devided by 2 beofre for the 2 tailed test so now we need to multiply by 2
+pvalue_task9= 2*(1-pnorm(abs(z_stat)))
+
+#if pvalue<alpha capture that
+pvalue_task9_smaller_than_alpha = pvalue_task9<alpha
+
+#table it
+pvalue_task9_table = data.frame('Z-Stat' =round(z_stat,2), 'P-Value'= round(pvalue_task9, 2), 'Alpha' = alpha, 'P-Value < Alpha?'= ifelse(pvalue_task9_smaller_than_alpha, 'Yes', "No"), check.names=F)
+
+
+#kabel table
+pvalue_task9_table %>%
+  #cetering values within each column 
+  kable(align = 'c') %>%
+  kable_classic(full_width = FALSE, html_font = 'Comic Sans')%>%
+  #adding columns so you can see 
+  column_spec(1:ncol(pvalue_task9_table), border_left = TRUE)%>%
+  column_spec(1:ncol(pvalue_task9_table), border_right = T)
+```
+&nbsp;&nbsp;&nbsp;&nbsp;With an alpha of .05 and a z-stat of 1.2 (both calculated in task 8), we have a p-value of `r pvalue_task9`, which represents the probability of observing a z-stat that it at least as extreme as the one calculated (`r z_stat`). The p-value lets us know there is a `r pvalue_task9`% chance of having a value more extreme, which is far above the significance level stated (`r alpha`). This means we don't have enough evidence to conclude there is a difference between the sample mean and the population mean, and therefore cannot reject Ho with the desired confidence level of `r confidence_level_task8`. <BR>
+This is congruent with our conclusion from task8, that there is simply not enough evidence to reject the null hypothesis and say there is a difference. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 10: Hypothesis Testing in Sample 6</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 10 Last one}
+sample6_n=29
+#name size <30 so we use a t test
+alphatask10=.01
+#population mean we already calulcated as 1.05 in task 2
+
+t_stat_task10= (mean6/meanall)/(sd6/sqrt(sample6_n))
+
+t_cv_task10= qt(1-alpha,df=sample6_n -1)
+
+
+p_value_task10 = 1-pt(t_stat_task10, (df=sample6_n-1))
+
+#now store the decision value
+reject_Ho_task10 = p_value_task10<alphatask10
+
+
+#df(data frame not degrees of freedom)
+t_outcome_table= data.frame('Population Mean' = meanall, 'Sample 6 Mean' = round(mean6,2), 'Sample 6 SD'=round(sd6, 2), 'Sample 6 Size' = sample6_n, 'T-Stat' =round(t_stat_task10, 2), 'Critical t-Value' =round(t_cv_task10, 2), "P Value"=round(p_value_task10, 7),'Is P < Alpha>'=ifelse(p_value_task10, 'Yes', 'No'), "Reject Ho?"=ifelse(reject_Ho_task10, 'Yes', 'No'), check.names=FALSE)
+
+
+#kable table
+t_outcome_table%>%
+  kable(align="c")%>%
+  kable_classic(full_width=F, html_font= 'Comic Sans')
+
+
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;Because the N value of sample 6 is less than 30, I of course chose to utilize a t-test instead of a z-test. This change means of course that I'll use the sample standard deviation (s) in lieu of the population standard deviation (σ). As with a  z-test, the t statistic represents the possibility of an observation being the same or more extreme than the one we calculated. Here that means the probability of a more extreme value (or same level of extremity value) occurring is `r t_stat_task10`. The p-value we calculated is `r p_value_task10`, which is represented as 1e-07 in the table, due to the extremely low number. This extreme low means that there is going to be a very small chance of observing a t-value that is as extreme as the one calculated(`r t_stat_task10`).It is clear that the p value is far less than out desired significant level, of `r alphatask10`, so our evidence is very strong to reject the null hypothesis. In practice, this means that we have evidence significant enough to reject the null hypothesis, and state that there is a definitive change in the population from the observed sample. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Conclusion</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;In this module report, we created confidence intervals for several sample populations as well as for the population overall. In addition to constructing these intervals, we did some hypothesis testing with populations large and small, using z and t test scores respectively. <BR>
+&nbsp;&nbsp;&nbsp;&nbsp;A key takeaway is the level of variability in the data, particularly in Sample 5. Different samples have varying levels of variability, and are thus shaped very differently. For example, Sample 5 has a much higher average distance from the mean than the other populations, indicating it has a much higher level of variability. When we calculated a confidence interval for Sample 5 at 95% confidence, we were unable to reject the null hypothesis because the p-value of `r pvalue_task9` was far greater than the confidence interval we wanted to examine `r confidence_level_task8`.    Even though there was not enough evidence to outright reject Ho, it is worth taking into account the high degree of variability calculated in task2. Because there is such a high SD for sample 5, any estimate will have a lower degree of precision, which may help to account for the lack of evidence in rejecting Ho. If we were examining the population as a whole, and wanted a very high degree of certain, I would suggest conducting research into why that sample is so different from the rest of the population. If possible, I may even recommend excluding that Sample from the population based on findings from that research, and classifying Sample 5 as it's own population. Of course, I would only recommend this if there was a component of Sample 5 that made it obviously distinguishable form the rest of the population, like the sample was taken on a different day or under different control conditions. <BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;Though there was not significant enough evidence to reject the null hypothesis in task 8, there was sufficient evidence to reject the null hypothesis and state there was a change in task 10. I used a t-test because of the low level of observations, which inherently widened the confidence interval. It is unclear if conducting a t test directly lead to our ability to reject the null, but nevertheless it is the appropriate way to calculate a confidence interval for a sample with such a low number because it takes the number of observations directly into account with the degrees of freedom calculations.
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp; We also took a close look at how sample sizes affect the confidence interval widths. As a general rule, as the sample size increases, so does the confidence level. The more instances researchers have to draw on, the more confident they can be that a sample is representative of the true population. This does however lead to challenges in accuracy While a high sample size and a higher CI may lead to a more precise answer, the range may not be accurate, as we saw in task 2 and 3, where the sample 2 mean did not fall within the confidence interval when n=`r n`. When we calculated the required sample size, we saw that the sample size would have to be higher the higher in confidence the researchers wanted to be. This was backed up by our findings in task 5 when we calculated the confidence interval for the same sample with an n of `r Sample2_n`. The t interval was wider than the z values because of the low number of observations. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;While we learned in class 3 how to code and calculate a confidence interval, I learned specifically how to conduct a confidence interval for variance using chi-squares in this project. Calculating the variance confidence was a bit confusing, but I can to understand that chi squared is simply a way to measure absolute distance form the average. It helped me to examine the boundaries within which the true population variance is likely to fall, just like a normal confidence interval. The only difference is that we are calculating the likelihood that the spread of the population will fall outside of the confidence area.
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;The skills I demonstrated and learned during this project lend themselves incredibly well to the conservation industries. We could never hope to sample an entire species population, there is no way of knowing what the true population number is, so we could never know if we had truly surveyed every individual. Confidence intervals are an essential component of making necessary inferences about the population at large. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;Overall, this project was a great introduction and exercise in calculating confidence intervals and testing hypothesis. It was particularly useful for me to practice the verbiage of rejecting or failing to reject the null hypothesis. Statistics can be an intimidating field for those who do not interact with data analysis daily, and so communicating findings and statistics clearly in layman's terms is essential. If someone is not able to understand your findings, research is not useful. This project was an excellent way for me to flex my existing analytical skills, and practice making assumptions about a population based on a sample.
+<BR>
+
+
+
+
+
+
+
+
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Bibliography</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+<ul>
+<li>“HTML.” HTML Standard, 18 Nov. 2024, html.spec.whatwg.org/multipage/syntax.html#character-references. 
+<li>“The Chi-Square Test for Independence.” Chi-Square - Sociology 3112 - Department of Sociology - The University of Utah, soc.utah.edu/sociology3112/chi-square.php. Accessed 19 Nov. 2024.
+<li>“Unit 12: Significance Tests (Hypothesis Testing).” Khan Academy, Khan Academy, www.khanacademy.org/math/statistics-probability/significance-tests-one-sample. Accessed 19 Nov. 2024. 
+<li>Bluman, A. G. (2007). Mp Elementary Statistics. McGraw-Hill Companies.
+<li>Montgomery, D. C., & Runger, G. C. (2014). Applied Statistics and Probability for Engineers (6th ed.). <li>Wiley.chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://ia601209.us.archive.org/30/items/asxsaxasxgbyunuyun/Applied%20Statistics%20and%20Probability%20for%20Engineers%20%28Fifth%20Edi%29.pdf
+<li>Tanha, Kiarash, et al. “P-Value: What Is and What Is Not.” Medical Journal of the Islamic Republic of Iran, U.S. National Library of Medicine, 25 Sept. 2017, pmc.ncbi.nlm.nih.gov/articles/PMC5804470/. 
+Team, DataFlair. “Chi-Square Test in R: Explore the Examples and Essential Concepts!” DataFlair, 25 Aug. 2021, data-flair.training/blogs/chi-square-test-in-r/. 
+<li>Thevapalan, Arunn. “Chi-Square Test in R: A Complete Guide.” DataCamp, DataCamp, 29 Aug. 2024, www.datacamp.com/tutorial/chi-square-test-r?utm_source=google&utm_medium=paid_search&utm_campaignid=19589720830&utm_adgroupid=157156377351&utm_device=c&utm_keyword=&utm_matchtype=&utm_network=g&utm_adpostion=&utm_creative=720362650741&utm_targetid=dsa-2218886984060&utm_loc_interest_ms=&utm_loc_physical_ms=9002004&utm_content=&utm_campaign=230119_1-sea~dsa~tofu_2-b2c_3-us_4-prc_5-na_6-na_7-le_8-pdsh-go_9-nb-e_10-na_11-na-bfcm24&gad_source=1&gclid=Cj0KCQiAi_G5BhDXARIsAN5SX7pBpZAOESMdr2RIyRSwpTg1XwOeglSyh9hm4O8BqsJDU8SRQ_ww6YAaAhFtEALw_wcB.  
+<li>Ted Hessing, Ramana PV. “Confidence Intervals.” Six Sigma Study Guide, 13 Apr. 2024, sixsigmastudyguide.com/confidence-intervals/. 
+</ul>
+
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Appendix</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+The submission of this assignment contains an Rmd file and an Html file for review. 

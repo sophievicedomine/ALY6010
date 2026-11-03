@@ -1,0 +1,446 @@
+---
+title: ''
+output: html_document
+---
+
+```{r LibraryData, message=FALSE, warning=FALSE, echo = FALSE}
+# Libraries used in this report
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(knitr)       # for tables
+library(RColorBrewer)
+library(readxl)
+library(readr)
+library(kableExtra)
+library(FSA)
+library(ggplot2)
+library(lattice)
+library(scales)
+
+
+library(readxl)
+finaltendertravel <- read_excel("finaltendertravel.xlsx")
+View(finaltendertravel)
+```
+
+
+
+<P><BR><Font size = 5, color = "#840000">
+<CENTER><B>
+Sophie Vicedomine<BR>
+Northeastern University <BR>
+In Partial Completion of the Course: ALY6010 CRN 70846<BR>
+Project 4</B><BR>
+<P>
+
+
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Introduction</B>
+</CENTER></P>
+</B><Font size = 2, color = "black">
+
+<B>What is Hypothesis Testing?:</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Hypothesis testing is an essential tool in statistics, and allows researchers to state with certain levels of confidence whether or not changes in a population have been statistically significant or not. In the fisheries and ocean conservation industries, researchers and scientists are constantly working with legislators and lobbyists to implement regulation and best practices that they believe will be beneficial to the environments and ecosystems in question. In order to prove that certain regulations or policies are effective, analysits perform hypothesis testing, and are then able to say if a change has been observed or not. According to Liargovas in the encyclopedia of Quality of Life and Well Being Research, "Hypothesis testing is a way of systematically quantifying how certain is the result of a statistical experiment. It is a common practice in science that involves conducting tests and experiments to see if a proposed explanation for an observed phenomenon works in practice." (Liargovas, p. 3053). Simply put, hypothesis testing helps us to understand if a change has been observed in a population based on a specific new set of rules. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;In order to preform a hypothesis test, one must first state the null hypothesis (Ho) as having no change, that it, that the sample before the change and the sample after the change will be the same. Then, one must state an alternate hypothesis (Ha). The alternate hypothesis states a change, usually Ho is not equal to Ha (a two tailed test that simply test for a change), Ho<Ha (a right tailed test that would indicate an increase after a change has been implemented) or Ho>Ha (a left tailed test that would indicate an decrease after a change was implemented). According to Laerd Statistics, "The null hypithesis is essentially the "devils advocate" position. That is, it assumes that whatever you are trying to prove did not happen...For example, the two teaching methods did not result in different exam performances... the alternate hypothesis states the opposite and is usually the hypothesis you are trying to prove" (Laerd Statistics p. 1). Depending on what stakeholders are interested in learning, analysis can choose from one of three directional tests:  a two tailed test, left tailed test, or right tailed test. Identification of which test is appropriate is essential for efficient analysis, and should be decided upon between stakeholders of all levels. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;After stating the null and alternative hypothesis, one must state the confidence level, typically 90, 95, or 99%. This level allows us to say with what amount of certain we are that our acceptance or rejection of the null hypothesis is true. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Another Useful tactic in hypothesis testing is normalizing ones data. Normalizing data is useful for comparing two different things, in our case, two different sample populations: "How do we compare a score of 85 in a cooking contest with a score of 100 on an I.Q. test? In order to do so, we need to "eliminate" the unit of measurement, this operation is called to normalize the data" (Abdi, University of Texas at Dallas, p.1). This can also be said to help us compare apples and oranges. It could help one compare data with different units of measure, different scales in the same unit of measure, or to visualize effectively with data that is highly spread out. In short, it helps us to compare data in an efficient way, but shouldn't be used when the raw data is particularly sensitive to scaling, like in truly random data. 
+<BR>
+<BR><B>Z, T, and F Tests:</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Z, F, and T Tests are all used to determine if there's a statistically relevant difference between two samples. Specifically, it evaluates the means of two samples (usually before a rule or change has been implemented and after) to assess if that rule or change had a statistically significant impact on the population at large. Z and T tests are very similar, with the difference lying in the sample sizes. Sampling an entire population is almost never feasible, but researchers usually attempt to have a large sample size so that they can have more of the overall population represented in the sample. However, sometimes a threshold for normal sample size (n=30) isn't possible. In this case, statisticians will employ a t-test, which directly takes into account the lower n number by calculating the degrees of freedom (DF=n-1). An F test on the other hand is not differentiated by its sample size, but rather by the amount of samples included. If one desires to compare three or more samples (or two samples and the population) and F test can be utilized to make this comparison. The F test is named after Ronald Fisher, who developed the method "to indicate a ratio of the variance of sample means around the grand mean to the variance scores around each sample mean...(and)has an expected value of one"(Shumacker 2013). If everything in the samples is exactly the same, the result of the F test will be zero,  but if there is a difference, the result will be greater than zero. The greater the result, one can usually expect a greater change. 
+<BR>
+<BR><B>Importance of Proper Academic Referencing:</B>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;When one publishes or submits work with ones own name on it, credit for the entirety of the information contained in that work is attributed to the author, unless that author cites their sources appropriately. No one is an expert on all subject matters, and for what pieces of information they do exhibit mastery over, there were always teachers involved in facilitating that understanding. Citing ones sources attributes certain portions of the knowledge and information contained within a work to other authors, giving them the credit deserved for research and analysis they performed. If one fails to cite other authors or researchers correctly, one is essentially taking credit for words, results, or analysis they did not perform. Failure to properly cite is at best dishonesty, and at worst outright theft of work and information.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Beyond the concept of giving credit where credit is due, proper academic referencing also can help to deepen a readers understanding of a concept. It can provide a network of other resources that support the findings of the report they are reading, and provide a veritable road map for diving deeper into a topic discussed. It also helps to build a community of trust in research and academia. If a professional has a reputation for not giving credit to collaborators or reference materials, peers may be hesitant to share new data or works, as they could be fearful their work would go without the proper credit. It helps to create an environment of collaboration in academic and scientific circles, and is an essential part of any research, where scientific, literary, or creative. 
+<BR>
+<BR><B>Data Sets Utilized:</B> 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;In the following work I use data that I recorded myself. I noted the time taken to drive 12 people to shore at a low speed, and then facilitated  an experiment to test the effectiveness of taking multiple trips with less people, allowing us to travel at higher speed. In the following analysis section, I will determine the effectiveness of this change, and make recommendations to stakeholders based on my findings. 
+
+
+<BR>
+</FONT>
+</CENTER>
+<P>
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.1 Problem Presented</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;Over the Thanksgiving holiday I was lucky enough to spend time aboard a sailing vessel in the British Virgin Islands as a stewardess, supporting the main crew and captain while they hosted several passengers who were there on vacation. I was able to get this opportunity through my father, captain Gorman, who was worried there would not be enough help aboard to support all of the paying passengers. There were people of varying levels of swimming abilities on board, and during our activities we needed to go into the neighboring island of ‘Little Jost’ (the colloquial name for the smaller island near the famous island Jost Van Dyke) for various reasons. From provisioning, to sightseeing, to recreation, we took several trips a day to this island, which was about half a mile from where our boat was anchored offshore. To make this journey, we used the smaller boat, called the tender, to make the trip back and forth between our boat and Little Jost. There were twelve people aboard, and although the tender could take all twelve people in a single trip, the weight and number of individuals required us to go very slowly as we made our way to land. I wanted to know if it would be faster overall for the tender to take two trips, each carrying six people, and driving at a higher speed would be more efficient than driving slowly with all twelve people. When we had all twelve people aboard, the tender was driven at around 6 nautical miles per hour, a slow and meandering pace. However, with 6 passengers or less, we could almost triple our speed, and travel at around 18 nautical miles per hour. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;This presented me with an interesting question, would one trip going a third of full speed be different in the total time taken, than if we split up our passengers and took two trips? If we did take two trips, the first officer, who was driving the tender each time, would have to travel the distance to the boat a total of three times, one from the boat to the dock with passengers, once from the dock to the boat without passengers, and then a third time from the boat to the dock with the remaining passengers. Theoretically, the time taken should be equal, as we could travel three times as fast with less passengers, though the distance itself would be tripled. I set out to answer this question: is it faster to take one big trip with all the passengers aboard, or to take two smaller trips with only half of the passengers each time?
+
+
+<P><BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.2 Variables Collected</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+There were three total variables in this sample: speed, number of passengers, and the total time in minutes. Total time and speed are both dependent variables and are influenced by the independent variable: number of passengers.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;The number of passengers was divided into two strata: six passengers and twelve passengers. It is important to note that the number of passengers refers to the number of individuals aboard the tender who are not the first officer. The first officer, Finley Mack, was excluded from the count of individuals aboard the tender because his presence was required for navigation of the vessel on each instance. So when the number of passengers is listed at 12, that refers to the number of civilian individuals aboard, while the total number of individuals aboard was thirteen. This should not have significant impact on the total time, as we are interested in is a decrease in the number of passengers results in a statistically significant decrease in the total time and decreasing the number of individuals from thirteen to seven is quite significant. The number of passengers is still recorded as twelve and six respectively in order to provide clarity to the primary stakeholders: the captain, crew, and owner of the boat, who are interested in the experiences of the passengers, not of the crew themselves. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;The trips that had all twelve passengers aboard were conducted over the course of my week and a half long stay aboard the vessel. According to our captain, John C. Gorman, the weather conditions for that week were remarkably uniform, with no changes to temperature greater or less than 5 degrees Fahrenheit, and now changes in wind greater or less than 7mph as recorded by the vessels internal navigation and weather instruments. This further supports the continuity of all thirty recorded trips with twelve passengers, although they were sampled over a larger mount of time than the trips with only six passengers. The trips that only included six passengers were conducted over the course of an afternoon, which held “Neither particularly good nor particularly bad” weather conditions according to captain Gorman. We can interpret this to mean that the wind and current conditions observed that afternoon were as close to the average weather conditions over the course of the week as was reasonably possible. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;The total time in minutes is an independent variable, and we are testing it’s dependency (or lack of) on the other independent variable, number of passengers. The total time is the primary variable that I’ll be graphing and analyzing. The number of passengers is the variable that I’ll be using to differentiate the different speeds. The purpose of the experiment is to understand if the total time needed to transport all passengers to shore changes significantly based on the number of passengers in each trip. The time is measured in minutes, with seconds representing the proportion of a non-whole minute. For clarity purposes, I converted the seconds to a proportion of a minute in my data. The data is continuous because at the time of capture, seconds represent a portion of a minute, and by converting my data from minutes and seconds to simply minutes, I am not tampering with the data in any way. The data still exists in its original form, it is simply easier for us to understand as a minute, as opposed to minutes and seconds, meaning it is still continuous. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Speed is the dependent variable in the sample and was subject to a small amount of fluctuation that was unable to be measured. The speed was dependent on the number of passengers. For safety, the first office of the vessel only felt comfortable driving at low speeds when all twelve passengers were aboard. He attempted to keeps the speed as consistent as possible for each trip, 6 nautical miles per hour when all twelve passengers were aboard, and 18 nautical miles per hour when only 6 passengers were aboard. Though he attempted to keep these speeds as consistent as possible, there was some fluctuation in the speed based on wind and current conditions. 
+
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.3 Table Observations</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+
+```{r Task 1.3}
+
+#renaming before I do anything else so that its easy to work with
+tendertravel <- read_excel("finaltendertravel.xlsx")
+kable(tendertravel, caption = "Time in Tender by Speed and Passenger Load") %>%
+  kable_styling(full_width=FALSE, font_size = 14, position='center')%>%
+  column_spec(1:ncol(tendertravel), border_left = TRUE, border_right = TRUE) %>%  # lines between columns and making column headers navy
+  row_spec(0, bold=TRUE, color="white", background = "navy")
+
+
+
+
+#ok boxplot time
+ggplot(tendertravel %>% filter(`Number of passengers` %in% c(6, 12)), 
+       aes(x = factor(`Number of passengers`), y = `Total Time (Minutes)`)) +
+  geom_boxplot(fill = c('#679436', '#427AA1'), color = 'black', outlier.shape=8, outlier.color='magenta', outlier.size=3) +
+  labs(title = "Boxplots of Total Time by Number of Passengers",
+       x = 'Number of Passengers',
+       y = 'Total Time (minutes)') +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = 'bold', hjust = 0.5))
+
+
+#slay now a violin plot because I have never tried one before
+ggplot(tendertravel, aes(x = factor(`Number of passengers`), y = `Total Time (Minutes)`, fill = factor(`Number of passengers`))) +
+  geom_violin(trim = FALSE, alpha = 0.7, color = "black") +
+  scale_fill_manual(values = c("6" = '#679436', "12" = '#427AA1')) +
+  labs(title = "Distribution of Total Time by Number of Passengers",
+       x = "Number of Passengers",
+       y = "Total Time (Minutes)",
+       fill = "Number of Passengers") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))
+
+
+```
+
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.4 Methods of Sampling Employed</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;Over the course of a week and a half, I was able to measure 30 trips into shore with all twelve people aboard, and with the kindly participation of the crew and passengers, also measured the total time it took for us to shuttle everyone to shore with a maximum of six people in the tender. Participants of this study were compensated with a dinner made by me as payment for their participation in this study, as collection of the data was time consuming for everyone.
+It should be noted that data collection for all twelve passengers in the tender was done over the course of a week, with varying weather conditions, though all were considered ‘fair’ and ‘calm’ by the captain of the vessel, and he anecdotally deemed the conditions similar enough to compare over time. The data for taking a maximum of six participants was taken over the course of a single afternoon, with more consistency surrounding the wind, current, and temperature conditions. Additionally, for continuity, the driver of the tender remained the same for each and every trip we took into shore, the first officer of the vessel had driven this route many times before, so one should not expect his familiarity with the route to have an effect on the time taken to drive into shore each time.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;The distance into shore remained the same each time as well, as the boat stayed on anchor for the duration of the time To get my time into a continuous variable, I tied each trip myself on my phone, and logged the total trip time in minutes and seconds in the notes app on my phone. While collecting data for the six person trips, it should be noted that I stopped my timer for unloading passengers and tying the boat to the dock. At the time, I simply wanted to see if the travel time itself was different between passenger loads. However, if I were to perform the experiment again, I would not have paused this timer. The crew of the vessel were more interested in time overall rather than simply the travel time, meaning they would have been more interested in results that included the docking, offloading of passengers, embarking, and reloading of more passengers. However, because of the high time cost of sampling, I was unable to perform the test a second time using their preferred parameters. It should be noted that I did raise this point to the crew before sampling, but at the time they stated their preferred interest in travel time as opposed to time overall. That opinion changed after the sample had concluded, but I found it relevant to note here for documentation of stakeholder preference and reception to the results of the test. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;After collecting the sample results in the notes app on my phone, I entered the data into an excel sheet, and converted the data into one number by taking the minutes as they were and dividing the number of seconds by 60. I then simply added those two numbers together in the following excel column to calculate the time in minutes, instead of minutes and seconds.
+<BR> Though we traveled to shore with all twelve passengers more than 30 times, I only sampled the first thirty instances. Similarly, there were more than 30 trips taken with only 6 passengers. When we departed for the airport, we left in groups of 6 as well, because we each had luggage in tow. However, I did not include these instances in the sample, as the luggage is added weight aboard the tender, and passengers will not usually have their luggage aboard when simply going ashore for a day hike or similar recreational activities. Because of these constraints, the survey is nonrandom. According to the National Library of Medicine, this survey is technically a purposive sample, as I have excluded some instances based on relevance. It should be noted that though these exclusions were made based on the research objectives identified in the introduction of this study, I also coincidentally recorded the first 30 observations of each population, making it also a systematic sample. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;The sample size for all trips was 60, with the sample size of six and twelve passengers each at 30. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;The data is best described by the mean and standard deviation sample statistics, we are observing patterns of instances when one variable is changes, not the proportion of the sample based on a binary change. 
+
+
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.5 Null and Alternative Hypothesis</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+My null and alternative hypothesis are as follows:
+<BR>Ho: µ1 = µ2
+<BR>Ha: µ1 > µ2
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Here, we should note that µ1 is representative of the status quo, that is, it represents the total time to carry twelve passengers from the boat to the dock. Ha represents the sample after a change has been made, that is, the total time it takes to shuttle all passengers to the dock with a total of six passengers at a time. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Stating a null and alternative hypothesis is essential for understanding the boundaries of the sample and the hypothesis test. It helps us to clarify and restate the research question in mathematical terms and tells us what we are observing in terms of change. Here, a clearly stated null and alternative hypothesis tells us that we are looking to see if a change in the status quo results in the time taken to get to shore with 12 people is greater than the time taken to get to shore with six people. Simply put, we want to see if the sample with 12 passengers has a statistically significant time greater than the sample with only 6 passengers at a time.
+
+
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.6 Confidence Interval, Alpha, and Two Tailed Testing Methodology</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+
+
+```{r 1.6}
+#easy stuff first
+confidence_level = .9
+a=1-confidence_level
+
+
+#identify data points in the set based on number of passengers
+passenger_level_12 = tendertravel%>% filter(`Number of passengers`==12)%>% pull(`Total Time (Minutes)`) #filtering for only 12 passengers and saving as a vector
+passenger_level_6 =tendertravel%>% filter(`Number of passengers`==6)%>% pull(`Total Time (Minutes)`) #same for 6 passengers
+
+means1 = mean(passenger_level_12)  
+means2 = mean(passenger_level_6)
+
+#variances I'll use var instead of σ because r seems to have a problem with it sometimes
+var1= var(passenger_level_12)
+var2 = var(passenger_level_6)
+n1=length(passenger_level_12)
+n2=length(passenger_level_6)
+
+#formula is z = difference in means/sqrt((σ1/n1)+(σ2/n2))
+zstat = (means1-means2)/sqrt((var1/n1)+(var2/n2))
+
+
+zcv= qnorm(a)
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;When I approached the captain and crew with the parameters of this project, and they proposed this problem as an interesting gone to study, they were interested in decreasing the total amount of time passengers must wait while being shuttled between the boat and the dock. They were not interested in knowing simply if there was a change, but rather in knowing if the total time decreased when less passengers were taken with more trips overall. Thus, I will be conducting a left tailed test. I want to see if the mean of Ha is less than the mean of Ho. If it is, and I can reject the null hypothesis at the specified confidence level, then the region that Ha will fall into would be in the left side of the confidence interval. If there is no statistically significant evidence to support a decrease in overall time, then the test value will fall into the right side of the curve. Again, the crew is not interested in simply understanding if a change has occurred (if they were I would perform a two tailed test), but rather if the change has occurred in a specific direction (if the mean time of carrying twelve people is greater than the mean time of carrying 6 people). 
+<BR> &nbsp;&nbsp;&nbsp;&nbsp;I originally wanted to be 95% confident in my analysis and decision to reject or fail to reject, but after speaking with the captain and crew, they preferred a 90% confidence level instead. They preferred more specificity, rather than more accuracy. The cost of being wrong is not high here, passengers may spend a few extra minutes each day in transit, but as weather conditions are pleasant and these passengers are on vacation, there is not large cost to taking the less efficient method of transportation. Perhaps these minutes would add up over time if the true mean was outside of the confidence interval, but they did not seem particularly concerned by this prospect, and still requested a 90% confidence level instead of a 95% confidence interval. 
+Thus, the confidence level is `r confidence_level`, and because we have a left tailed test, I’ll calculate alpha using the following formula: alpha=1-confidence level, making our alpha in this test `r a`. 
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;In the above R chunk I have calculated my critical z value as `r zcv` using the `r confidence_level` and `r a` values, in tandem with the sample sizes of `r n1` for trips with twelve passengers and `r n2` for trips with six passengers
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.7 Data Normalization</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 1.7}
+normal12 = (passenger_level_12 - means1) / sqrt(var1 / n1)
+normal6 = (passenger_level_6 - means2) / sqrt(var2/n2)
+
+# Now density plot for normalized data
+# alpha .55 is the opaqueness of the alpha area, not the actual value
+ggplot(data.frame(normal12), aes(x = normal12)) +
+  geom_density(fill = '#427AA1', alpha = .55) + 
+  geom_density(data = data.frame(normal6), aes(x = normal6), fill = '#679436', alpha = .55) +
+  geom_vline(xintercept = zcv, color = '#39FF14', lwd = 1, lty = 2) +
+  labs(title = 'Normalized Sample Density Distribution Plots', 
+       x = 'Normalized Time in Minutes', 
+       y = 'Density of Time') + 
+  scale_x_continuous(limits = c(-20, 20)) +  # So I can see everything
+  theme(plot.title = element_text(size = 15, face = 'bold', hjust = .6)) +  # Making the title look better
+
+  # Add the key with text inside black borders using geom_label
+  geom_label(aes(x = -14, y = .08, label = 'Trips Carrying 12 Passengers'), color = "#427AA1", fill = "white", size = 3, fontface = 'bold', label.size = 0.3) +
+  geom_label(aes(x = -14, y = 0.072, label = 'Trips Carrying 6 Passengers'), color = "#679436", fill = 'white', size = 3, fontface = 'bold', label.size = 0.3) +
+
+#i'm using ggplot2 package which doesn't support the text() code so I'm using annotate instead
+annotate('text',x =-14, y=.1, label=paste('Confidence Level:', round(confidence_level*100,2),'%'),color= 'maroon',size=3) +annotate('text', x=-14, y=.095, label = paste('Alpha: ',round(a,2)), color='maroon', size=3)
+
+```
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;In the above R chunk I plot the density distribution of the normalized data of the sample of trips with 6 passengers against the sample of trips with 12 passengers. I will describe the two density plots using the the three statistical descriptors that are most familiar to me: mean(a measure of center), variance (a measure of spread), and the skew (a measure of shape). 
+<BR><B>Mean:</B> Because we have already normalized the data, the mean is represented by the highest point on the y axis of each graph. We can see that the mean for carrying 12 people was lightly higher in time and in density than the mean for carrying six people. This means that there was a slightly higher average time when carrying twelve people as opposed to six, and the values were more standardized, they were more similar to each other, hence the higher density value. 
+<BR>
+<BR><B> Variance</B> We can also observe that the spread of the data is a bit wider with 6 passengers. There are some low level values when carrying 12 passengers (likely due to drew comfortably with the passenger load over time), but the slope of the curve for when the vessel is carrying 6 people is slightly less steep than when carrying 12 passengers. 
+<BR>
+<BR><B>Shape</B> Both seem to be normally distributed curves, however it is worth pointing out that there are some particularly low values when carrying 12 passengers. THis is not enough to cause the shape of the data to change drastically, but they are notable because the same spike in low level values does not occur in the trips carrying 6 passengers.
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.8 Z Test Values</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 1.8 Z Values}
+#I know i have already established all of these variables, but R continues to give me an error, so I'll just restate them here for ease of use
+#also reloading the dplyr library because it works for pipes up until this chunk
+library(dplyr)
+library(magrittr)
+library(knitr)
+
+passenger_level_12 =tendertravel %>% filter(`Number of passengers`==12) %>% pull(`Total Time (Minutes)`) 
+passenger_level_6 =tendertravel %>% filter(`Number of passengers`== 6) %>% pull(`Total Time (Minutes)`)
+means1=mean(passenger_level_12)  
+means2=mean(passenger_level_6)
+n1=length(passenger_level_12)
+n2 =length(passenger_level_6)
+var1=var(passenger_level_12)
+var2=var(passenger_level_6)
+
+z_testval = (means1 - means2) / sqrt((var1 / n1) + (var2 / n2))
+z_testval
+```
+&nbsp;&nbsp;&nbsp;&nbsp;In the above R chunk I have calculated the z value of my hypothesis test. I use a z test because both of my samples have at least 30 instances, so a t test where I take into account degrees of freedom would not be appropriate. The formula for calculating a z value in a one tailed test is z=(x1-x2)/sqrt((σ1/n1)+(σ2/n2)) where x1 is the sample mean with 12 passengers, x2 is the sample mean with 6 passengers, σ1 is the standard deviation with 12 passengers, σ2 is the standard deviation with 6 passengers, n1 is the sample size for trips with 12 passengers, and n2 is the sample size for trips with 6 passengers. After performing my calculation, the z test score for my left tailed hypothesis test is `r z_testval`.
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.9 To reject, or to fail to reject?</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;After performing my calculation for the critical z value in task 1.6 as `r zcv`, and then calculating the z test value as `r z_testval` in task 1.8, I can conclude that there is a statistically significant change when decreasing the passenger load to 6 passengers, and reject my null hypothesis with 90% confidence. This will have far reaching implications for first officer Finley Mack and captain John Gorman. We can say with 90% confidence that reducing the passenger load, allowing the tender to move faster, but increasing the overall distance that the tender travels, decreases the time passengers spend in transit overall. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;A test value of `r z_testval` falls far to the left of the critical value of `r zcv` when graphed, well in the area of the confidence zone. If it had fallen to the right of this zone, we would not have statistically significant evidence to reject Ho and state that a change had take place. There are a few things that I attribute this change to, and would be interested to conduct further study to test. Firstly, I wonder if decreasing the area of the confidence interval, but increasing the confidence level to 95% confidence would force the test statistic outside of the confidence area, and disallow us from rejecting Ho. Additionally, if I could conduct the experiment again, I would include the time it takes to unload passengers from the tender onto the dock. Several minutes were taken with each unloading, and since we are interested in infomring the crew on the passenger experience, these minutes would be relevant for passengers. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;However, with the current understanding of the passenger experience being limited to time spent in transit alone, I can reccomend that the crew opt to take smaller passenger loads into shore, as I am 90% confident it will decrease the time that passengers spend in transit. 
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.10 P-value Calculation and Explanation</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 10 p val based on z test val}
+pvalue_test=pnorm(z_testval)
+```
+&nbsp;&nbsp;&nbsp;&nbsp;The p value of a hypothesis test can be said to be the probability of having the true mean of the population of trips fall outside of the confidence interval calculated. In layman's terms, this could be the 'percent change that you ar wrong'. R provides an easy way to calculate the p value using the test value calculated and the code pnorm(), however Zach Bobbit also does a thorough explanation of how to calculate the p-value using a probability table in his article written for Statology (Bobbit, 25 June 2023, Statology). The p-value for my test at a 90% confidence level is `r pvalue_test`, which means there is a `r pvalue_test`% chance that I am wrong, and that the true mean of the population of trips with 6 passengers is outside of the confidence interval (to the right of the critical value). With such a low p-value, I can say that I have strong statistical evidence to reject the null hypothesis. 
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.11 Test Value Plotting</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 11}
+# calculating density for normal12 so it works better with the ggplot() function
+density_normal12=density(normal12, na.rm=TRUE)
+density12_df=data.frame(x = density_normal12$x, y = density_normal12$y)
+
+#calculating density for normal6 so it works better with the ggplot() function
+density_normal6=density(normal6, na.rm=TRUE)
+density6_df=data.frame(x=density_normal6$x,y =density_normal6$y)
+
+ggplot()+geom_area(data=density12_df,aes(x=x,y=y),fill='#427AA1',alpha =.55) +
+  
+#make sure the density of normal6 shows up just like we did for normal6 above
+  geom_area(data=density6_df, aes(x =x,y=y),fill='#679436',alpha=.55)+
+  
+#make p val area show up in highlighter yellow so its visbile over the green
+  geom_area(data=subset(density12_df, x<= z_testval),aes(x=x, y = y), fill='yellow',alpha= 0.4)+
+  
+#cv and z test val lines
+  geom_vline(xintercept =zcv, color='green',lwd=1,lty=2) +#Crit value
+  geom_vline(xintercept=z_testval,color='magenta',lwd=1, lty=2)+ #test val
+  
+#labels for confidence level, alpha, test val and pval area
+  annotate('text', x=-14,y =.1,label= paste('Confidence Level:', round(confidence_level*100,2),'%'),color='maroon',size=3)+
+  annotate('text',x =-14, y=.095,label =paste('Alpha: ',round(a, 2)),color='maroon',size=3) +
+  annotate('text', x = z_testval+1, y=.09,label= paste("Z-Test Value"),color='magenta',size=3,hjust=0)+
+  annotate('text',x= z_testval-6,y=.02, label= "P-Value Area",color= 'black', size = 3)+
+  annotate('text', x=zcv+4, y=.095, label=paste('Critical Value'),color='green', size=3)+
+  
+#keep the key I made last time
+  geom_label(aes(x=-14, y=.08,label='Trips Carrying 12 Passengers'),color = "#427AA1", fill = "white",size =3,fontface = 'bold', label.size=.3)+
+  geom_label(aes(x=-14, y=.072,label = 'Trips Carrying 6 Passengers'),color = "#679436", fill='white',size=3,label.size =.3) +
+  
+  #now do axis and chart titles
+  labs(title = 'Normalized Sample Density Distribution Plots', 
+       x='Normalized Time in Minutes', 
+       y='Density of Time') + 
+  scale_x_continuous(limits=c(-20,20))+#so i can see everything
+  theme_minimal()+
+  theme(plot.title =element_text(size=15,hjust=.6))
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;When adding the P-value area and z-test values into my preexisting normalized distribution curve, I can see hat I was indeed right in my previous assessment, an there is statistically significant evidence to support my rejection of the null hypothesis, and state that I am 90% confident that there is a decrease in the mean traveling time when the tender takes two trips of 6 people. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;I had some trouble with the codes in this section. Though I was able to copy a significant portion of the code directly from task 1.7, I became disorganized when writing in the new z-test lines and the yellow shading for the p-value area. I elected to reorganize my existing code slightly, and so that I could more easily identify where I needed to add the new code in order to amend the existing graph. Additionally, though I utilized code na.rm, there appear to be infinite values that are still being picked up by R. My graph executes as desired, but this error would be an interesting one to do a bit of research on should it arise in a future project when I have more time to fiddle and perfect my codes. 
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Task 1.12 Non-Normalized Density Distribution Curve of Both Samples</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+```{r Task 12 non normalized distribution curve}
+#density as a vector
+real_density12 = density(passenger_level_12, na.rm=TRUE)
+#same thing for 6
+real_density6 = density(passenger_level_6, na.rm=TRUE)
+
+#density as a data frame for ggplot
+real_density12_data_frame = data.frame(x = real_density12$x, y = real_density12$y)
+real_density6_data_frame = data.frame(x = real_density6$x, y = real_density6$y)
+
+#redefining means because R was not remembering them
+means1=mean(passenger_level_12, na.rm=TRUE)
+means2=mean(passenger_level_6, na.rm=TRUE)
+
+#plotting using ggplot
+ggplot() +
+#plot for 12
+  geom_line(data = real_density12_data_frame, aes(x = x, y = y), color = "#427AA1", size = 1.2) +
+  
+#plot for 6
+  geom_line(data = real_density6_data_frame, aes(x = x, y = y), color = "#679436", size = 1.2) +
+  
+  #mean lines
+  geom_vline(xintercept=means1, color='#427AA1', linetype='dashed', size=.7)+
+  geom_vline(xintercept=means2, color= '#679436', linetype='dashed', size=.7)+
+  
+  # Labels and axis titles
+  labs(
+    title = "Non-Normalized Density Distribution of 12 and 6 Passenger Trip Samples", 
+    x = "Total Time in Minutes",
+    y = "Density of Times"
+  ) +
+  
+  # Scaling the x-axis to fit both curves
+  scale_x_continuous(
+    limits = c(
+      min(min(real_density12$x), min(real_density6$x)),
+      max(max(real_density12$x), max(real_density6$x))
+    )
+  ) +
+  
+#keeping the title and axis sizes clean
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 8),
+    axis.title.y = element_text(size = 8)
+  ) +
+  
+#keep the key I made last time
+  geom_label(aes(x = 3.3, y = 1, label = 'Trips Carrying 12 Passengers'), color = "#427AA1", fill = "white", size = 3, fontface = 'bold', label.size = 0.3) +
+  geom_label(aes(x = 3.3, y = .9, label = 'Trips Carrying 6 Passengers'), color = "#679436", fill = 'white', size = 3, fontface = 'bold', label.size = 0.3) 
+
+
+```
+&nbsp;&nbsp;&nbsp;&nbsp;Above we have the density distribution graph for a the raw data,where before we had it for the normalized data. Normalization is helping in comparing samples that are fundamentally different. Though we are not comparing tests with different units of measurements in this test, we are comparing two different samples, and normalization can provide a good way to compare these two different samples, taken at different times. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Again, for continuity, I'll compare the following three statistical measures in this raw data density distribution, and the normalized density distribution: mean (a measure of center), spread, and shape
+<BR>
+<BR><B>Mean:</B> Interestingly, in the normalized data, the mean trip time of the trips with 6 passengers was slightly below the mean trip time of trips with 12 passengers, but the same is not true for the raw data, where the mean trip time for 6 passengers is actually slightly higher. This may point to a significant impact of outlines in the trips with 12 people. Earlier, when we executed a boxplot, we saw that there were a few low level outliers in the sample of trips with 12 people. There are a few anecdotal reasons that these may have happened, but it is clear that they did have a significant impact when we normalized the data. In the raw, non-normalized data, these outliers bring the mean of the trips with 12 passengers down significantly. 
+<BR>
+<BR> <B> Spread:</B> The spread of the data for the non normalized distribution graph is much smaller than the spread for the normalized distribution graph. This implies that most of the values are close to the mean. One could also state that the data for both samples is quite uniform, and has relatively low levels of variability.
+<BR>
+<BR><B> Shape:</B> The spreads of the normalized data and non normalized data are quite similar. They both show rough bell curves for both samples. However, it is worth noting that it is possible that the sample of trips with 12 passengers could be argued to be left tailed, or negatively skewed, because of a few low level data points we identified as outliers in task 1.3.
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Conclusion</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+&nbsp;&nbsp;&nbsp;&nbsp;This project was overall quite time intensive, from identifying a problem, designing an experiment, collecting stakeholder feedback, conducting the experiment, and the several tasks necessary in order to test they hypothesis, I spent many days entirely devoted to this work. After all tasks were concluded, the result was rewarding, as I have now conducted an entire scientific experiment, complete with analysis and recommendations, entirely on my own. Hypothesis testing is an essential skill in statistics, and I'm proud to say I would now be comfortable conducting analysis on different hypothesis to test their effectiveness for my organization in my professional life, though the work required to get to this point was significant. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;After I conducted my experiment and analysis, it is clear that I can be 90% confident that there is strong statistical evidence in favor of rejecting the null hypothesis, and concluding that there is an overall decrease in travel time when taking multiple trips with 6 people. Going forward, I will recommend to the captain and crew that they take smaller groups of individuals in the tender when making the trip from the boat to the dock on Little Jost, as it will allow passengers more time overall to spend exploring the island, and doing other recrational activities. 
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;Despite this clear evidence, there are corrections I would make to my experimentation method if I were to conduct this study a second time. FIrstly, I would not stop my timer when passengers were getting off of the tender and onto the dock. This time (though not technically travel time as defined by the crew) is still time that the secondary stakeholders (passengers) spend in not doing recreational activities, and thus has an impact on their experience. If I had not stopped the timer when passengers were getting off of the tender and getting onto the docks, I predict a minute at least may have been added to each observation of trips with 6 passengers, which would likely have disallowed me from rejecting the null hypothesis. Additionally, I would have requested that all trips with 12 passengers be measured on the same day, just like the trips with 6 passengers. I was working as a stewardess on this trip, and did not feel it was appropriate for me to request more of the paying passengers time than was strictly necessary for the course of this experiment. However in a perfect world, I would have been able to conduct all 60 trips on the same day. I do not believe that recording the trips with 12 people had a significant impact on the travel times, as the weather conditions were very uniform over the week and a half long trip, but the best experiments are still conducted with as little variation in outside variables as possible.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;In sum, I will recommend taking smaller, but more frequent trips to shuttle passengers back and for from our mouring to the dock on Little Jost, so that passengers can have as much time possible to enjoy the sea, the island, and all that Jost Van Dyke and Little Jost have to offer. 
+
+
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Bibliography</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+- **“Geom_vline: Line, Vertical.”** *RDocumentation*. [www.rdocumentation.org/packages/ggplot2/versions/0.9.1/topics/geom_vline](https://www.rdocumentation.org/packages/ggplot2/versions/0.9.1/topics/geom_vline). Accessed 26 Nov. 2024.
+
+- **“Violin Plot - Geom_violin.”** *Ggplot2 Documentation*. [ggplot2.tidyverse.org/reference/geom_violin.html](https://ggplot2.tidyverse.org/reference/geom_violin.html). Accessed 28 Nov. 2024.
+
+- **“Normalization (Statistics).”** *Wikipedia*. Wikimedia Foundation, 5 Feb. 2024, [en.wikipedia.org/wiki/Normalization_(statistics)](https://en.wikipedia.org/wiki/Normalization_(statistics)).
+
+- **Abdi, Hervé.** “Normalizing Data.” *The University of Texas at Dallas*, 2010. [https://personal.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf](https://personal.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf). Accessed 29 Nov. 2024.
+
+- **Liargovas, Panagiotis.** "Hypothesis Testing." *Encyclopedia of Quality of Life and Well-Being Research*, edited by Filomena Maggino, 2nd ed., Springer, 2024, pp. 3053–3054. [https://link.springer.com/referenceworkentry/10.1007/978-3-031-17299-1_1363](https://link.springer.com/referenceworkentry/10.1007/978-3-031-17299-1_1363).
+
+- **Palinkas, Lawrence A., et al.** “Purposeful Sampling for Qualitative Data Collection and Analysis in Mixed Method Implementation Research.” *Administration and Policy in Mental Health*, U.S. National Library of Medicine, Sept. 2015. [https://pmc.ncbi.nlm.nih.gov/articles/PMC4012002/](https://pmc.ncbi.nlm.nih.gov/articles/PMC4012002/).
+
+- **Schumacker, Randall, and Sara Tomek.** “F-Test.” *SpringerLink*, Springer New York, 1 Jan. 1970. [https://link.springer.com/chapter/10.1007/978-1-4614-6227-9_11](https://link.springer.com/chapter/10.1007/978-1-4614-6227-9_11).
+
+- **Siegle, Del.** “Systematic Sampling.” *Educational Research Basics by Del Siegle*, University of Connecticut, 22 May 2015. [https://researchbasics.education.uconn.edu/systematic-sampling/](https://researchbasics.education.uconn.edu/systematic-sampling/).
+
+- **Zach Bobbitt.** “How to Calculate a P-Value from a T-Test by Hand.” *Statology*, 25 June 2023. [www.statology.org/how-to-calculate-a-p-value-from-a-t-test-by-hand/](https://www.statology.org/how-to-calculate-a-p-value-from-a-t-test-by-hand/).
+
+
+<BR></B><Font size = 3, color = "black">
+<CENTER><B>Appendix</B>
+</CENTER>
+</B><Font size = 2, color = "black">
+In tendem with this report, I will be submitting a RMD file by the name "ALY6010vicedomineProject4" and an excel file containing my data called "finaltendertravel.xlxs" for clarity and ease of grading. 

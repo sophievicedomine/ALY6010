@@ -1,0 +1,470 @@
+---
+title: ''
+output: html_document
+---
+
+```{r LibraryData, message=FALSE, warning=FALSE, echo = FALSE}
+# Libraries used in this report
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(knitr)       # for tables
+library(RColorBrewer)
+library(readxl)
+library(readr)
+library(kableExtra)
+library(FSA)
+library(ggplot2)
+library(lattice)
+library(scales)
+
+
+library(readxl)
+M2Data_2023_ <- read_excel("M2Data(2023).xlsx")
+View(M2Data_2023_)
+```
+<P><BR><Font size = 5, color = "#840000">
+<CENTER><B>
+Sophie Vicedomine<BR>
+Northeastern University </B><BR>
+<P>
+
+ALY 6010 Fall 2024
+</FONT>
+</CENTER>
+<P>
+<P><BR><Font size = 5, color = "black">
+<Font size = 4, color ="#840000">
+<CENTER><B>Introduction</B>
+</CENTER>
+<BR><Font size = 2, color = "840000">
+<B> Uses and Importance of Salary Surveys</B><BR>
+</B><Font size = 2, color = "black">
+One of the most powerful tools workers have in advocating for higher pay is referencing industry standards. Comparison between one's own pay level with that of the industry as a whole can create a frame of reference to work within, and can start to answer questions like what is the average pay of a person in a similar position, and in what percentile one's current salary falls in. On the employer side, a salary survey can also help a company to make sure their compensation packages are competitive, so that they can attract the best talent to contribute to their organization. According to a Smith and Jones survey in 2022, companies that are able to utilize salary survey data effectively have reduced rates of internal turnover. In practice, this probably comes to fruition through multiple avenues. Human resource departments will meet with market analysts who are experts in salary data, and with accounting executives, to negotiate what compensation packages companies are willing to offer new and current employees. 
+<Font size = 2, color = "840000">
+<BR><B> Confidence Intervals
+</B><BR><Font size = 2, color = "black">
+A confidence interval is a range that reflects one's certainty about a true parameter of a population based on sample statistics. Sampling is arduous, expensive, and time consuming, and it is nearly impossible to sample 100% of any population. A confidence interval allows us to utilize a sample of the population to make conjectures about the population at large. Common confidence levels are 90, 95, and 99 percent. A researcher interested in knowing the average salary of a population may want to calculate a 95% confidence interval so that they could estimate where the true mean of a population lies. After calculation, the researcher will be able to say with 95% confidence that the true average salary of a population falls withing the lower 95 limit and the upper 95 limit. For example, they could say that they are 95% confident that the true mean of a population falls between 80,000 dollars and 100,000 dollars. IF they were interested in being more confident, the range between the upper and lower limit would widen. So at a 99% confidence level, the same researcher may assert that they are 99% confident the true mean of a population falls between 70,000 dollars and 110,000 dollars. <BR>
+It is important to note that the true population parameter is not guaranteed to fall within that range. As previously stated, it is nearly impossible to sample 100% of the population, so a confidence level can never be 100%. 
+<Font size = 2, color = "840000">
+<BR><B> Common Misconceptions
+</B><BR><Font size = 2, color = "black">
+Confidence levels are often taken as strict truth, rather than the estimation they are. One may be tempted to say that at a 95% confidence interval, there is a 95% chance that the population parameter falls in the specified range, however, this would be untrue. A 95% confidence level is not the probability that the true mean is in the specified range, but rather a range that we can say with certain confidence that the parameter falls into. 
+<BR>
+It should also be mentioned that higher or lower confidence levels are not inherently better. A higher confidence level may be better when we want to be precise, but are willing to risk the possibility of the true parameter falling outside of the confidence interval.This would  be useful in some drug testing or other quality control manufacturing processes, where the cost of the parameter falling outside of the confidence level would be very high. Researchers may wish to use a higher confidence level, and a consequently wider range, to help ensure the population parameter falls into the range, even if the range is slightly less precise. On the other hand, market consumer research or initial exploratory research may benefit from a lower confidence interval that is more precise, because the cost of being wrong is less. 
+<Font size = 2, color = "840000">
+<BR><B> Confidence Interval Formula Breakdown
+</B><BR><Font size = 2, color = "black">
+The formula for calculating a confidence interval is as follows, CI = x̅+-z(σ/n^1/2). In words, this formula can be broken down as the Confidence Level is equal to the sample mean when we add and subtract the product of the z score and the standard error. In simple English, the formula can be explained like this: the Confidence Interval is equal to the positive and negative sum of the average distance to the mean divided by the amount the sample mean is likely to vary from the true population mean. 
+<Font size = 2, color = "840000">
+<BR><B> Industry Examples
+</B><BR><Font size = 2, color = "black">
+I am very interested in the industry of Oceanography, particularly as it relates to ocean acidification levels. Confidence intervals are very important in this industry because we will never be able to sample the entire population (the entire ocean) and must instead rely upon samples collected by scientists and field technicians. Ocean acidification occurs as seawater absorbs carbon dioxide (CO₂) from the atmosphere, resulting in a decrease in pH levels. Confidence intervals allow researchers to make conclusion about deep ocean water, where sampling is incredibly difficult due to depth and pressure. Using confidence levels and samples taken closer to the surface,  researchers and scientists can begin to estimate the range within which the true mean pH of deep ocean water is likely to be (Bates et al., 2014). Deep ocean water is slower to change than water closer to the surface, and measuring levels at the bottom provides critical insights into long-term increases in pH due to climate change and pollution. 
+<BR>
+<BR>
+<B><CENTER><Font size = 4, color = "840000">
+Analysis
+</B></CENTER>
+
+<B><I><font size = 2 color = "green">Task 1.1
+</B></I>
+<Font size = 2 color ='black'>
+Here we will calculate the 95%, 97%, and 99% confidence intervals for the true mean of the data across all 20 stores. 
+```{r Task 1.1 confidence intervals, message=FALSE, warning=FALSE}
+#combine all the values
+allstores = unlist(M2Data_2023_[,paste0("Store ", 1:20)]) #this unlists the list of all stores and stores them under the one variable name which is allstores #it also includes the space sfter the word store so r recognizes the column names
+
+n= length(allstores)
+meanM2 = mean(allstores, na.rm= TRUE)
+sdM2 = sd(allstores, na.rm =TRUE)
+
+#define z values for confidence intervals
+zscore_95 = 1.96
+zscore_97= 2.17
+zscore_99 = 2.58
+
+#margin of error for each
+me_95 = zscore_95*(sdM2/sqrt(n))
+#margin of error at 95% confidence is the 95th z score value multiplied by the product of dividing the sd by the squareroot of the n value
+me_97 = zscore_97 *(sdM2/sqrt(n))
+me_99= zscore_99*(sdM2/sqrt(n))
+
+#upper and lower limits for each
+lower_95 = meanM2 - me_95
+upper_95 = meanM2 + me_95
+
+lower_97 = meanM2 - me_97
+upper_97 = meanM2 + me_97
+
+lower_99 = meanM2 - me_99
+upper_99 = meanM2 + me_99
+
+# now we can do the widths of each confidence level
+width_95 = upper_95 - lower_95
+width_97=upper_97- lower_97
+width_99 = upper_99-lower_99
+
+# now we have all our values calculated and we can create a data frame to base the table off of
+table_of_confidence= data.frame("Stats" = c('Z Values', "Margin of Error", 'Lower Limit', "Upper Limit", "Width of Interval"), '95th Percent Confidence Level' = c(zscore_95, me_95, lower_95, upper_95, width_95),'97th Percent Confidence Level' = c(zscore_97, me_97, lower_97, upper_97, width_97), '99th Percent Confidence Level' =c(zscore_99, me_99, lower_99, upper_99, width_99))
+
+#define columns names
+colnames(table_of_confidence) <- c("Stats", "95th Percent Confidence Level", "97th Percent Confidence Level", "99th Percent Confidence Level")
+
+#now just use cable to make table pretty
+kable(table_of_confidence, caption= 'Statistics at the 95th, 97th, and 99th Percent Confidence Intervals')%>% #i love pipes
+  kable_styling(full_width = FALSE, position = 'center')%>%
+  column_spec(1, bold=TRUE)
+```
+<B><I><font size = 2 color = "green">Task 1.1 Analysis
+</B></I> <Font size = 2, color = 'black'>
+In the above confidence table, we can see that the width of each interval increases as the confidence level increases, which is to be expected. If you want to be more sure, one must inherently be less precise. Remarkably, there appears to be some consistencies between the stores. Even at the 99% confidence level the width of the interval is just over 1, with a margin of error just over .5, which indicates that the hourly rates across all stores is quite consistent, there is no one store where employees are paid more. Across all stores, we can be 99% confident that the true mean wage for hourly workers is between 11.3 and 12.3 dollars per hour. 
+
+<B><I><font size = 2 color = "green">Task 1.2</B></I>
+<Font size = 2 color ='black'>
+
+```{r Task 1.2 part A, message=FALSE, warning=FALSE}
+#calc mean and sd by store
+store_stats <- M2Data_2023_ %>%
+  summarise(across(starts_with("Store"), 
+                   list(mean = ~mean(.x, na.rm = TRUE), 
+                        sd= ~sd(.x, na.rm = TRUE)), 
+                   .names= "{col}_{fn}"))
+
+#reshape all of that data so the table is cleaner
+store_summary =pivot_longer(store_stats, 
+                              cols= everything(), 
+                              names_to=c("Store", ".value"), 
+                              names_pattern ="Store (\\d+)_(mean|sd)") %>% 
+  rename("Mean" = mean, 'Standard Deviation' = sd)
+
+# Display the per-store summary table using kable
+kable(store_summary, caption = "Standard Deviation and Mean by Store Number") %>%
+  kable_styling(full_width = FALSE, position='center')
+
+
+
+```
+```{r Task 1.2 part B, message=FALSE, warning=FALSE}
+#define n here so I can reference it in part c
+n_stores = 20
+#grand mean (mean overall) and grand sd (sd overall) for all 20 stores
+grandmean = mean(store_summary$Mean, na.rm =TRUE)
+grandsd =mean(store_summary$'Standard Deviation', na.rm=TRUE)
+n_stores = 20
+
+```
+
+Task 1.2 part B findings:<BR>
+The number of stores is <B>`r n_stores`</B>.<BR>
+The grand mean across all of the stores is <B>`r round(grandmean, 2)`</B>.<BR>
+The grand standard deviation of all of the stores is <B>`r round(grandsd, 2)`</B>.<BR>
+
+```{r Task 1.2 part c, message=FALSE, warning=FALSE}
+#we need to do t values because most of the observations are less than 30
+#so we start with defining degrees of freedom
+t95 = qt(.975, df= n_stores-1)
+t97 = qt(.985, df=n_stores-1)
+t99= qt(.995, df= n_stores-1)
+
+#now margin of error
+me_95 = t95 *(grandsd/sqrt(n_stores))
+me_97 = t97 *(grandsd/sqrt(n_stores))
+me_99 = t99*(grandsd/sqrt(n_stores))
+
+#upper and lower lims
+#95% confidence
+lower_95 = grandmean - me_95
+upper_95 = grandmean + me_95
+
+#97% confidence
+lower_97 = grandmean - me_97
+upper_97= grandmean +me_97
+
+#99% confidence
+lower_99= grandmean - me_99
+upper_99 =grandmean +me_99
+
+#widths
+width_95 = upper_95-lower_95
+width_97 = upper_97-lower_97
+width_99 = upper_99-lower_99
+
+#now that we have all of our values we can make the table
+# Create a data frame to hold the confidence interval results
+confidence_table <- data.frame(
+  "Stats" = c("T Value", "Margin of Error", "Lower Limit", "Upper Limit", "Width of Interval"),
+  "95th Percent Confidence Level" = c(t95, me_95, lower_95, upper_95, width_95),
+  "97th Percent Confidence Level" = c(t97, me_97, lower_97, upper_97, width_97),
+  "99th Percent Confidence Level" = c(t99, me_99, lower_99, upper_99, width_99)
+)
+
+
+#define columns names
+colnames(confidence_table) <- c("Stats", "95th Percent Confidence Level", "97th Percent Confidence Level", "99th Percent Confidence Level")
+# Display the table using kable and kableExtra
+kable(confidence_table, caption = "Confidence Intervals at 95%, 97%, and 99% Confidence Levels") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  column_spec(1, bold = TRUE)
+
+```
+
+
+
+<B><I><font size = 2 color = "green">Task 1.3</B></I>
+<Font size = 2 color ='black'><BR>
+Task 1.2 had many parts and was quite intense, however what is immediately apparent to me is the variability of the wages by store. In the previous task, we surmised that there was not a huge difference between stores based on the small interval even at 99% confidence. Here, in part A of task 1.2, we can see the standard deviations of each store broken out. Stores 7 and 8 both have very low standard deviations, and both have a mean below the grand mean. This may indicate that only entry level workers are employed in these locations, because their mean is low and the data is similar leading to a smaller standard deviation. Store 20 on the other hand has a mean and a standard deviation well above the grand mean and grand standard deviation. To me, this indicates that there are workers of different levels employed in this location. Executives employed here would make far more than an entry level employee, and may drag both the mean and the sd up well above the mean and sd of the stores in aggregate. <BR>
+It is important to note that the table we created in task 1.2 part b differs from the table we created in task 1.1, because we are working with t values instead of z scores. Some of the store locations have less than 30 observations, so we must default to t values instead of z scores due to the low number of observations (n) and account for some sampling variability. I noticed also that at the 99% confidence level, the T-based interval is wider than the Z based interval. This difference appears to become more pronounced with increased confidence level, as the gap is not so pronounced at the 95% confidence level. This means that the importance of the T score becomes more pronounced the more confident you want to be. <BR>
+From looking at both tales, the T based values seem to be more conservative, which makes sense considering the smaller n value they draw from. If we have enough data to justify a z-score analysis, I certainly would recommend this method, as it is more precise and gives smaller ranges compared to its t score counterpart. <BR>
+
+
+<B><I><font size = 2 color = "green">Task 1.4</B></I>
+<Font size = 2 color ='black'>
+```{r Task 1.4, message=FALSE, warning=FALSE}
+#remember to use na.rm =TRUE to remove/ignore blank values
+mean_allstores = mean(allstores, na.rm =TRUE)
+
+#the sd of all the stores is the sd of the variable allstores that we stored earlier
+sd_allstores = sd(allstores, na.rm=TRUE)
+
+#normalize the data for all stores
+normalized_allstores_data = (allstores -mean_allstores)/ sd_allstores
+```
+<B><I><font size = 2 color = "green">Task 1.4 Observations</B></I>
+<Font size = 2 color ='black'>
+In task 1.4 we calculate the mean and standard deviation across all 20 stores, as opposed to stores individually like in the first part of task 1.3. After we calculate the mean and sd across all stores, we normalize the data, which is a process of scaling. Normalizing the data allows us to calculate the mean as zero and the standard deviation as 1 (Weissetein 2020).This allows us to compare data that is different, like comparing apples and oranges. Some of the stores have more or less data, and the data falls across different ranges. Normalizing allows us to extrapolate if a data point is typical or atypical more easily.<BR>
+A z-score is a measure of spread, and they tell us the number of standard deviations above or below the mean a value is. Z-scores are similar to normalizing in that they help us to compare data is that is somewhat different, however it is a fundamentally different measure and the two should not be used interchangeably. 
+It is also important to note that we are ignoring any blank values using the code na.rm. Different stores have different number of employee wage observations (n values) so it is important to discard any blank cells so they do not contribute to the statistics we are calculating. 
+<BR>
+<B><I><font size = 2 color = "green">Task 1.5 </B></I>
+<Font size = 2 color ='black'>
+```{r Task 1.5 density Plot, message=FALSE, warning=FALSE}
+allstores%>%
+  density(na.rm = TRUE)%>%
+  plot(main = 'Density Plot of all Store Data', xlab= "Values from Data", ylab= "Density", col= 'navy', 
+        xlim = c(mean_allstores - 3.5 * sd_allstores, mean_allstores + 3.5 * sd_allstores)) #expand x axis
+
+#vertible AB line to call out the mean
+abline(v =mean_allstores, col="magenta", lwd = 1)
+text(mean_allstores, .04, "Mean", pos=2, col="magenta")
+
+#now AB lines for 1 2 and 3 sd ABOVE the mean
+
+abline(v=mean_allstores+sd_allstores, col='skyblue', lwd =2, lty=2)
+text(mean_allstores +sd_allstores, 0.04, "+1 SD", pos =4, col='skyblue')#1sd
+
+abline(v = mean_allstores + 2 * sd_allstores, col = '#62c3b1', lwd = 2, lty = 2)
+text(mean_allstores + 2 * sd_allstores, 0.04, "+2 SD", pos = 4, col = "#62c3b1")#2sd
+
+abline(v = mean_allstores+ 3 * sd_allstores, col = "blue", lwd = 2, lty = 2)
+text(mean_allstores +3 * sd_allstores,0.04, "+3 SD", pos = 4, col = "blue")#3sd
+
+#now AB lines for 1 2 and 3 sd BELOW the mean
+abline(v =mean_allstores-sd_allstores, col='skyblue', lwd= 2, lty = 2)
+text(mean_allstores - sd_allstores, 0.04,"-1 SD", pos = 2, col='skyblue')#1sd
+
+abline(v=mean_allstores - 2 * sd_allstores, col = "#62c3b1", lwd = 2, lty = 2)
+text(mean_allstores - 2 * sd_allstores, 0.04, "-2 SD", pos =2, col ='#62c3b1')#2sd
+
+abline(v =mean_allstores-3*sd_allstores, col = "blue", lwd =2, lty=2)
+text(mean_allstores-3*sd_allstores, 0.04, "-3 SD", pos =2, col="blue")#3sd
+
+```
+<BR><B><I><font size = 2 color = "green">Task 1.5 Observations</B></I>
+<Font size = 2 color ='black'><BR>
+This graph was interesting and rewarding for me to create, and there are several takeaways from its creation. 
+Firstly, the shape of the data is relatively normal, and follows the typical bell curve shape. This means that we can use the normal z-score and standard deviation assumptions and do not need to employ Chebyshev's Theorem for dealing with skewed data. We can clearly see that 99.7% of the data falls within 3 standard deviations of the mean, and can confidently say that 95% falls within 2 standard deviations of the mean, and 68% of the data falls within one standard deviation of the mean. In practicality, this implies that most employees receive a similar wage, with some employees having higher or lower value wages. <BR>
+I also noticed a more gradual downward slop from the mean of 10 down to the 16 dollar mark. Because the curve increases in steepness after the 16 dollar mark, I can surmise that typical workers receive wage increases on  a yearly or merit bases up to 16 dollars, but are unlikely to receive compensation above that level. Perhaps compensation about 16 dollars an hour is reserved for executives, managers, or other non entry level positions. It is also worth noting that the peak of the curve falls below the mean. Because the plot is a density plot, this indicates that that the mode (or most common observation) is below the mean, because the highest density value is below the mean. This means that there are likely more high value data points that pull the mean up, as mean is a non-resistant statistic and is highly influenced by atypical values. 
+I did notice that there is a presence of employees who make less than $7.25 an hour, which is the federal minimum wage. This means the organization we are dealing with is likely a restaurant or other place of service, and workers wages are likely subsidized by tipping. 
+Because the wage distribution density plot follows a normal curve and there appear to be no values outside 3 standard deviations on either side of the mean, we can assume that wages in store are relatively standard, with some variation especially towards the higher end of those wages. If the data had been skewed, I would have recommended additional studies into the duties and qualifications of positions, to see if those higher or lower paying positions warranted the compensation. 
+
+<P>
+<B><I><font size = 2 color = "green">Task 1.6 </B></I>
+<Font size = 2 color ='black'>
+```{r Task 1.6, message=FALSE, warning=FALSE}
+# z and t values for 95
+z_95 = c(-1.96, 1.96) #we know that these are the z values for 95% confidence
+t_95 = c(-t95, t95) #we already know this one too
+
+t_value_text = paste0("T Value 95% Confidence: ", round(t_95[1], 2), " to ", round(t_95[2], 2))
+print(t_value_text)
+
+#now do the density plot
+normalized_allstores_data%>%
+  density(na.rm=TRUE)%>%
+  plot(main = 'Normalized Data Density Plot at 95% Confidence', xlab= 'Standard Deviations of Normalized Data', ylab = 'Density of Values', col='navy', xlim=c(-4,4))#set x axis limits now so I can make sure everything is visible
+
+#abline time for the mean of the normal data
+abline(v= 0, col='magenta', lwd=2)
+text(0, .35, "mean (0)", pos=3, col='magenta', cex=.5)
+
+#abline for z 95% confidence
+abline(v=z_95, col ='skyblue', lwd= 2, lty= 2)
+text(z_95[1], .35, '-1.96 (Z 95% Confidence)', pos=3, col='skyblue', cex=.5)
+
+#abline for t 95% confidence
+abline(v = t_95, col = '#62c3b1', lwd = 2, lty = 2)
+text(t_95[1],.35, paste0(round(t_95[1],2), "T Value 95% Confidence"), pos =2, col ='#62c3b1', cex=.5)
+text(t_95[2],.35, paste0(round(t_95[2],2), "T Value 95% Confidence"), pos = 2, col ='#62c3b1', cex=.5)
+```
+<BR><B><I><font size = 2 color = "green">Task 1.6 Observations </B></I>
+<Font size = 2 color ='black'><BR>
+This task closely coincides with the task 1.6 methods and findings. We are still handling a density plot, but this time we have plotted specific z-scores correlating to confidence intervals.It is important to note firstly that we have normalized our data across all stores here, so the mean is at 0 and each standard deviation has a value of 1. We first state what each z and t score is at the 95% confidence level, than plot each on the chart. As expected, the t range is slightly larger than the z score range, because the t scores are accounting for increased variability based on limited data. If our sample sized decreased, the difference between the Z score and T score would increase,a s the t score degrees of freedom decreased. <BR>
+Based on the findings of this density plot, I can say with 95% confidence that the true mean of the data falls between -2.09 and 2.09 t scores of 0. 
+<B><I><font size = 2 color = "green">Task 1.7 </B></I>
+<Font size = 2 color ='black'>
+```{r Task 1.7, fig.width=8, fig.height=6, message=FALSE, warning=FALSE}
+#ok first lets get the stats for the box plots
+store_stats =sapply(paste0("Store ", 1:20), # go through the list of all stores 1-20
+                   function(store_name) {
+                     stats = boxplot.stats (M2Data_2023_[[store_name]])$stats
+                     mean_value = mean(M2Data_2023_[[store_name]], na.rm = TRUE)
+                     c(stats, mean = round(mean_value, 1))})
+
+
+#now make them all a data frame so we can use it easily
+store_stats<- as.data.frame(t(store_stats))
+colnames(store_stats) = c('Min', '25th Percentile', 'Median', '75th Percentile', 'Max', 'Mean')
+
+#do the limits for the box plot so we can adjust later on
+y_min= min(store_stats$Min) - (2 * abs(min(store_stats$Min)))
+y_max=max(store_stats$Max) + (2 * abs(max(store_stats$Max)))
+x_min=-.25
+x_max= 20.25
+
+#now box plot time
+boxplot(M2Data_2023_[, paste0('Store ', 1:20)], main = 'All Store Data Boxplots', xlab = 'Store Number', ylab = 'Data', col = 'tan')
+
+#now mark the mean values in red as directed
+points(1:20, store_stats$Mean, col = 'red', pch = 08) #use the star I discovered last project
+
+#use the x axis examples given
+x = c(0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5)
+
+# Define positions and colors for each statistic
+positions <- c(1, 1, 3, 3, 1, 3)  # Positions for Min, Q1, Median, Q3, Max, Mean
+colors <- c(rep("black", 5), "red")  # Colors for each statistic
+
+# Add labels for min, Q1, median, Q3, max, and mean using mapply
+#using code invisible so the table doesn tshow after the graph
+invisible(mapply(function(x_pos, min, q1, med, q3, max, mean_val) {
+  text(x_pos, min, round(min, 1), pos = positions[1], cex = 0.4)
+  text(x_pos, q1, round(q1, 1), pos = positions[2], cex = 0.4)
+  text(x_pos, med, round(med, 1), pos = positions[3], cex = 0.4)
+  text(x_pos, q3, round(q3, 1), pos = positions[4], cex = 0.4)
+  text(x_pos, max, round(max, 1), pos = positions[5], cex = 0.4)
+  text(x_pos, mean_val, round(mean_val, 1), pos = positions[6], col = colors[6], cex = 0.4)
+}, x, store_stats$Min, store_stats$`25th Percentile`, store_stats$Median, store_stats$`75th Percentile`, store_stats$Max, store_stats$Mean))
+
+```
+<BR><B><I><font size = 2 color = "green">Task 1.7 Observations </B></I>
+<Font size = 2 color ='black'><BR>
+This graph contains a lot of useful information, but is very dense. Lets break it down a bit, starting with defining what it does. <BR>
+Firstly, the graph shows a box plot of wage data for each of the 20 stores contained in the data set. It labels all quartiles and the mean for each boxplot. That means each store has its minimum, 25th percentile, median, 75th percentile, maximum and mean labled. It is important to note that all labels except for the mean are marked in black, with the mean being marked by a red star. <BR>
+The graph clearly displays the differences in wage spread for each store. Some interesting points are the general lack of homogeneity across spread. Store 20 has a far larger range in employee wages than store 7 does. Store 7 seems to be more difference than the rest of the stores are from each other, indicating that all employees are paid a very similar amount. This means there are likely no managers or executives working at that store location. If the company gives monetary compensation increases based on time spent at the company, this store likely has mostly new employees, while store 20 has employees from different responsibility and experience levels. <BR>
+I also considered if the location of each store would have significant bearing on the spread and center of the data within each store. For example, store 13 has values significantly lower than the rest of the stores. perhaps this store is located in a state where the minimum wage is at the federal limit of $7.25, while locations like store 15 may be located in a state with a higher minimum wage, forcing the entire population of that particular store to have higher wages. <B>
+Moving forward, I recommend collecting data on employee rank or level, as well as on location to derive further insights on wage equity among the 20 different stores. 
+<P>
+<B><I><font size = 2 color = "green">Task 2.1 </B></I>
+<Font size = 2 color ='black'>
+```{r Task 2, message=FALSE, warning=FALSE}
+#still using the same excel sheet but now going to the pets tab
+#remember there are no column headers
+pets <- read_excel("M2Data(2023).xlsx", sheet = 'pets', col_names = FALSE)
+
+#total response and number of people calculation
+response_number= table(pets$...1)
+pet_owners= response_number['Yes']
+non_pet_owners=response_number['No']
+response_total=pet_owners + non_pet_owners
+pet_owner_proportion= pet_owners/response_total
+
+#standard error for proportion
+standard_error=sqrt(pet_owner_proportion*(1 -pet_owner_proportion)/response_total)
+
+#confidence levels for 90% and 99% only
+z_90 =1.645
+z_99 =2.576
+
+lower_99 = pet_owner_proportion -z_99*standard_error
+upper_99 = pet_owner_proportion +z_99*standard_error
+lower_90=pet_owner_proportion - z_90*standard_error
+upper_90=pet_owner_proportion + z_90*standard_error
+
+#table time!
+pet_confidence_table= data.frame(
+  "Level of Confidence" = c('90 Percent', '99 Percent'), 
+  "Proportion of Pet Owners" = c(round(pet_owner_proportion, 3), round(pet_owner_proportion, 3)),  
+  "Lower Limit" = c(round(lower_90, 3), round(lower_99, 3)),
+  "Upper Limit" = c(round(upper_90, 3), round(upper_99, 3))
+)
+
+#fixing the column nmames
+colnames(pet_confidence_table)=c('Level of Confidence',  'Proportion of Pet Owners', 'Lower Limit', "Upper Limit")
+
+#kable
+kable(pet_confidence_table, caption = "Confidence Intervals for Proportion of Pet Owners") %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  column_spec(1, bold = TRUE)
+
+```
+<B><I><font size = 2 color = "green">Task 2.1 Observations </B></I>
+<Font size = 2 color ='black'><BR>
+In task 2 we are dealing with a new data set. Instead of the wages of owners across 20 stores, we are handling information about pet owners. Interestingly, this data is binary, all we have provided is the observation, which reads a simple yes or no for if the individual sampled has pets or not. The first thing I did was calculate the number of pet owners and the number of non pet owners by counting the yesses and nos. I then got the proportion of pet owners from the population. Using those, I was able to calculate the standard error, and from there the lower and upper limits for both the 90 and 99% confidence levels. Finally, I stored the information as a data frame so that I could more easily display it in a table, and used kable to present a clean and legible table with the proportion of pet owners and my upper and lower limits.<BR>
+From the table, I can say that I am 99% confident that the true proportion of pet owners in the population is between `r lower_99` and `r upper_99`. If a situation called for more confidence but less precision, I could say that I am 90% confident that the true proportion of pet owners in the population is between `r lower_90` and `r upper_90`. I may use the 90% confidence interval when conducting market research for a product, to give myself an understanding of the data. It would be more likely that the true proportion would be outside my range, but in exploratory market research the cost of an estimated proportion would be less than if I were to be calculating the proportion for production purposes. The higher the cost of an incorrect estimate, the higher level of confidence I would recommend. If I was creating a vaccine for all households with pets in them, and needed to know how many vaccines to create, I would recommend using the smaller confidence interval, so I could say with 99% certainty that the true proportion of pet owners was betwee `r lower_99` and `r upper_99`. <BR>
+<BR>
+<B><I><font size = 2 color = "green">Task 2.2 </B></I>
+<Font size = 2 color ='black'>
+```{r Task 2.2 Bar and Pie Chart, message=FALSE, warning=FALSE}
+#set up the plotting area using the given code in the assignment
+par(mfrow = c(1.99, 2))
+#pie chart too because I think they're easier
+piechart_labels = paste0(names(response_number), "-", round(100*response_number/ sum(response_number), 1), "%")
+pie(response_number, main="Proportion of Pet owners Sampled", col=c('lavender', 'purple'), lables=piechart_labels)
+
+#now barchart
+frequency_bar_plot = barplot(response_number, main='Number of Pet Owners Sampled', xlab= 'Response Value', ylab='Frequency of Response', col=c('lavender', "purple"), names.arg= c('No', 'Yes'))
+#add frequency lables for readability
+text(frequency_bar_plot, response_number-2, labels = response_number, pos=1, cex=.8, color ='black')
+
+
+```
+<BR>
+<B><I><font size = 2 color = "green">Task 2.2 Observations </B></I>
+<Font size = 2 color ='black'><BR></B>
+This bar chart and pie chart help to visually illustrate the proportion of pet owners from the sample we took. There are slightly more non-pet owners than pet owners, with 9 respondents reporting that they do not own pets and 8 responding that they did own pets. The pie chart clearly shows the proportion, while the bar chart is more useful for understanding the frequency of each response. <BR>
+We were directed to use the par(mfrow) code to help set up the plotting area, and display both graphs side by side. I adjusted the window of visibility slightly to help both graph titles to be clearly displayed. 
+
+<B><CENTER> 
+<Font size = 4 color="#840000">
+Conclusion</B></CENTER>
+<Font size=2 color='black'><BR></B>
+In conclusion, this project was advanced and involved, and I learned a good number of new r codes, and practicle applications for confidence levels. Normalizing data was a new concept for me, as was plotting t scores in congruence with z scores. Though I was already familiar with how to verbalize truths related to confidence intervals, plotting them graphically was a new challenge that took a bit of trial and error to perfect. <BR>
+Regarding my findings from the data I will begin with the employee wage data, as it was most substantive. When we conducted confidence interval testing in task 1.1 and 1.2 it became apparent that wages are relatively standard across all 20 locations. There were no employees being paid hundreds of thousands more or less a year.  I can say with 99% confidence that the true mean wage across all 20 stores is between wages fell between 11 dollars and 30 cents an hour and 12 dollars and 30 cents an hour. The wages also fall into a normal distribution, meaning most of the data falls in the center of the graph, with some values falling on each of the tail ends. Because it is normally distributed, I can say that 99.7% of the wages will fall within 3 standard deviations of the mean, as displayed in the density plot in task 1.5. <BR>
+Normalizing the data in Task 1.6 helped to emphasize the normal distribution. It also distinguished between t score and z score values. Because some stores have a small number of observations, I recommend using T-scores instead of Z-scores to analyze the spread of the data. The T-score ranges are broader, accounting for a higher level of viability that can be attributed to a lower number of degrees of freedom. 
+Thought the wage data was normally distributed overall, there were differences in spread and center across store locations. For example, store 20 had a markedly higher range in wages, while still having high wages overall, whereas store 13 had a very narrow spread, but wages were more middling compared to other stores. I recommend gathering location information for each store, to determine if state minimum wages are playing a part in the variability we saw in wages across stores. Additionally, it would be useful to know what kind of work employees are performing. If they are in a service based industry, many employees will be benefiting from tipping culture, and thus their wages may be below the federal minimum wage of $7.25 an hour. Additionally, if this is the case, employees who are manager level or above, perhaps they should not be examined with employees who rely on tips. <BR>
+The second piece of data we analyzed regarded pet ownership. This data was earlier to manipulate as it was binary in nature, and there was no need to distinguish among different locations or similar parameters. While we calculated the sample proportion of pet owners at `r pet_owner_proportion`, We can say with 99% confidence that the true number proportion of pet owners is between `r lower_99` and `r upper_99`, and with 90% confidence that it is between `r lower_90` and `r upper_90`. In any case, the proportion of pet owners and non pet owners within the sample was quite close, and it appears that the split is quite similar. <BR>
+Overall this project was challenging, and took a far greater amount of time than the previous project because of the newness of the subject matter, and the sophistication of the r codes required. I learned how to build confidence intervals within r, how to distinguish between z and t scores, how to utilize in line r codes, and solidified my understanding of how to interpret confidence levels. In future, I'll be more comfortable articulating these, and also look forward to using a few new codes I learned, like invisible() and par(mfrow), which I had used before but got to happily rediscover during this project. 
+
+
+<B><CENTER> 
+<Font size = 4 color="#840000">
+Bibliography</B></CENTER>
+<Font size=2 color='black'><BR>
+Davis, L. (2023). Applications of Confidence Intervals in Salary Data Analysis. Journal of Statistical Applications, 35(4), 356-371.<BR>
+Johnson, R., Lee, T., & Carter, P. (2021). Statistical Inference and Data Interpretation in Business. Business Statistics Quarterly, 12(3), 210-225.<BR>
+Miller, J. (2020). Introduction to Statistical Concepts. Modern Analytics Publishing.<BR>
+Smith, J., & Jones, A. (2022). Human Resources in the Data Era: Using Salary Surveys for Strategic Advantage. International Journal of Business Research, 29(1), 100-115.<BR>
+Taylor, K. (2019). Understanding Statistical Significance and Confidence Intervals. Applied Statistics Review, 45(2), 120-138.<BR>
+Bates, N. R., Astor, Y. M., Church, M. J., Currie, K., Dore, J. E., Gonzalez-Davila, M., ... & Santana-Casiano, J. M. (2014). A time-series view of changing surface ocean chemistry due to ocean acidification and its impacts. Oceanography, 27(1), 126-141. doi:10.5670/oceanog.2014.16<BR>
+Feely, R. A., Sabine, C. L., Lee, K., Berelson, W., Kleypas, J., Fabry, V. J., & Millero, F. J. (2004). Impact of anthropogenic CO₂ on the CaCO₃ system in the oceans. Science, 305(5682), 362-366. doi:10.1126/science.1097329<BR>
+Hoegh-Guldberg, O., Mumby, P. J., Hooten, A. J., Steneck, R. S., Greenfield, P., Gomez, E., ... & Hatziolos, M. E. (2007). Coral reefs under rapid climate change and ocean acidification. Science, 318(5857), 1737-1742. doi:10.1126/science.1152509<BR>
+Doney, S. C., Fabry, V. J., Feely, R. A., & Kleypas, J. A. (2009). Ocean acidification: the other CO₂ problem. Annual Review of Marine Science, 1, 169-192. doi:10.1146/annurev.marine.010908.163834<BR>
+Weisstein, E. W. (2020). Standard Normal Distribution. Wolfram Research.
+
+<B><CENTER> 
+<Font size = 4 color="#840000">
+Appendix</B></CENTER>
+<Font size=2 color='black'><BR>
+An R Markdown file has been attached to this report. The name of the file is M2Project_vicedomine.Rmd
+  
